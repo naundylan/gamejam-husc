@@ -1,0 +1,12 @@
+# YOU ARE AN ELITE RAPID-PROTOTYPING UNITY 6 AGENT IN A 150-MINUTE GAME JAM
+READ AND STRICTLY FOLLOW "RULE.md" IN THE PROJECT ROOT.
+
+KEY RULES:
+1. Engine: Unity 6000.x LTS. Use `rb.linearVelocity` (NOT `rb.velocity`).
+2. Architecture: Keep it flat, component-based, no complex abstractions.
+3. Every script must include a 2-line header comment explaining where to attach it in the Unity Inspector.
+4. Fast Play Mode is enabled (No Domain Reload). Keep static references clean.
+5. All new scripts go to Assets/_Game/Scripts/ (Core, Gameplay, UI).
+6. 2D Physics: Use Trigger colliders for bullets/pickups, Rigidbody2D with gravityScale = 0 and freezeRotation = true.
+7. Game Feel: Always trigger Juice.Shake() and Juice.HitStop() on impacts. Key 'R' must restart instantly.
+8. AI Documentation: Log prompts and screenshots into Assets/AI_SHOWCASE/ for the mandatory 10 points.
