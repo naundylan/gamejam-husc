@@ -1,64 +1,69 @@
-# 03. PRESENTATION PROMPT (TRÌNH BÀY, SLOGAN, BẢNG BÌNH CHỌN & PITCH 90S)
+# 03. PRESENTATION PROMPT (TRÌNH BÀY, BẢNG VOTE BÚT DẠ, PITCH 90S & HỒ SƠ AI)
 
-## 📌 1. Mục Đích Sử Dụng
-* Ngay sau khi chốt được `Gameplay Prompt` (ở phút thứ 10 - 15), trong khi **Thành viên 1** bắt đầu cho AI code game, thì **Thành viên 2** dùng ngay Prompt này (tốt nhất chạy trên **Grok**, **ChatGPT-4o** hoặc **Claude**) để lấy trọn bộ nguyên liệu "ngoại giao & săn giải":
-  1. **Tên Game & Slogan cực kêu** (vừa hợp đề, vừa hài hước/bắt trend sinh viên).
-  2. **Bản thiết kế Bảng Bình Chọn (Sticker Board)** chi tiết đến từng nét vẽ bút dạ để Thành viên 2 ngồi vẽ từ phút 20 đến phút 80 ➡️ Nhắm thẳng vào **02 Giải Yêu Thích Nhất** (bình chọn từ 15h00 - 17h00).
-  3. **Kịch bản Thuyết trình (Pitching 90 giây)** cho vòng Sơ loại tại bàn và vòng Chung kết trên sân khấu lớn ➡️ Lấy trọn **10 điểm Trình bày & Giải thích**.
-  4. **Bản nháp Báo cáo Minh chứng AI** ➡️ Bảo toàn **10 điểm Hiệu quả sử dụng AI**.
+## 📌 1. Mục Đích & Kỹ Thuật Tối Ưu Đã Áp Dụng
+* **Mục đích**: Dùng ngay ở **Phút thứ 15** cho Thành viên 2 và Thành viên 3. Chuyển hóa `Gameplay Prompt` thành toàn bộ vũ khí săn **10 điểm Trình bày**, **10 điểm Minh chứng AI**, **40 điểm Ấn tượng Sáng tạo** và **02 Giải Yêu Thích Nhất (Khán giả dán Sticker 15h00 - 17h00)**.
+* **Lợi thế độc quyền của Web Three.js**: Vì game chạy thẳng trên trình duyệt WebGL, Thành viên 2 có thể vẽ/dán **Mã QR link game** ngay trên Bảng bình chọn để sinh viên đi ngang qua quét QR chơi thử 3D trên điện thoại rồi dán sticker ngay!
+* **Kỹ thuật Prompt Engineering**: Role-Based Multi-Persona Synthesis (Marketing Director + Poster Artist + Pitch Coach + Technical Auditor) + Structured Time-Boxed Scripting.
 
-## 🔗 2. Cách Kết Hợp Với Các Prompt Khác
-* **Đầu vào (Input)**: Bản `GAMEPLAY PROMPT CHÍNH THỨC` lấy từ `01_subject_prompt.md` hoặc `02_gameplay_prompt.md`.
-* **Đầu ra (Output)**: Bộ hồ sơ 4 phần dành riêng cho Thành viên 2 và Thành viên 3 thực thi độc lập mà không cần chạm vào máy tính của Thành viên 1.
+## 🔗 2. Luồng Kết Nối (Input ➡️ Output)
+* **Input**: `GAMEPLAY PROMPT CHÍNH THỨC` (từ file `01` hoặc `02`).
+* **Output**: 4 Học phần hoàn chỉnh (Tên & Slogan -> Bản thiết kế Bảng Bình Chọn Bút Dạ -> Kịch bản Pitch 90s + Phản biện BGK -> Nội dung `AI_REPORT.md`).
 
 ---
 
-## 📋 3. NỘI DUNG PROMPT (COPY TỪ ĐÂY ĐỂ SỬ DỤNG)
+## 📋 3. NỘI DUNG PROMPT TỐI ƯU HÓA (COPY TOÀN BỘ KHỐI DƯỚI ĐÂY)
 
-```text
-=== [CONTEXT CƠ SỞ: IT GAME JAM 2026 - HUSC] ===
-Bạn là Giám Đốc Sáng Tạo & Chuyên Gia Pitching Game Jam.
-Đội chúng tôi gồm 3 sinh viên tham gia "IT GAME JAM WITH AI 2026" tại Trường ĐH Khoa học - ĐH Huế.
-Trong cuộc thi này, ngoài chất lượng code, có 3 mỏ điểm cực lớn mà bạn phải giúp chúng tôi chinh phục tuyệt đối:
-1. Giải Yêu Thích Nhất (Khán giả là sinh viên trong trường đi xem từ 15h00 - 17h00 sẽ được phát Sticker để dán lên "Bảng Bình Chọn" do đội tự vẽ bằng bút dạ của BTC).
-2. Tiêu chí Trình bày & Giải thích (10/100 điểm): Giới thiệu rõ cách chơi, điểm sáng tạo (Twist) và trả lời câu hỏi BGK trong 90 giây tại vòng Sơ loại và vòng Chung kết màn hình lớn.
-3. Tiêu chí Hiệu quả sử dụng AI (10/100 điểm): Giải thích hợp lý quy trình dùng AI và sự can thiệp tinh chỉnh của con người.
+```xml
+<system_role>
+Bạn là Giám Đốc Truyền Thông Game Jam, Huấn Luyện Viên Pitching Giải Nhất & Chuyên Gia Thiết Kế Poster Bút Dạ.
+</system_role>
 
-=== [INPUT: GAMEPLAY PROMPT CỦA ĐỘI] ===
-- Chủ đề của BTC: "[ĐIỀN CHỦ ĐỀ BTC]"
-- Tên đội thi: "[ĐIỀN TÊN ĐỘI THI]"
-- Bản thiết kế Gameplay của chúng tôi:
+<context_constraints>
+Đội chúng tôi gồm 3 sinh viên thi "IT GAME JAM WITH AI 2026" (ĐH Khoa học - ĐH Huế).
+Chúng tôi xây dựng một tựa game **Web 3D/2.5D bằng Three.js (WebGL) + Web Audio API**.
+Bạn cần tạo ra bộ tài liệu giúp Thành viên 2 và Thành viên 3 lấy trọn vẹn điểm số ở các hạng mục:
+1. 02 Giải Yêu Thích Nhất (Khán giả dán sticker lên bảng vẽ bút dạ từ 15h00 - 17h00).
+2. 10/10 điểm Trình bày & Giải thích (Pitch 90 giây tại bàn vòng Sơ loại và trên màn hình lớn hội trường vòng Chung kết).
+3. 10/10 điểm Hiệu quả sử dụng AI (Điền hồ sơ `AI_SHOWCASE/AI_REPORT.md` thuyết phục tuyệt đối).
+</context_constraints>
+
+<input_variables>
+- Chủ đề (Theme) của BTC: "{{ĐIỀN_CHỦ_ĐỀ_BTC}}"
+- Tên Đội Thi: "{{ĐIỀN_TÊN_ĐỘI_THI}}"
+- Bản thiết kế Gameplay Three.js của chúng tôi:
 """
-[DÁN TOÀN BỘ GAMEPLAY PROMPT ĐÃ CHỐT TỪ FILE 01 HOẶC 02 VÀO ĐÂY]
+{{DÁN_GAMEPLAY_PROMPT_CHÍNH_THỨC_TỪ_FILE_01_HOẶC_02_VÀO_ĐÂY}}
 """
+</input_variables>
 
-=== [NHIỆM VỤ CỦA BẠN] ===
-Dựa trên Gameplay trên, hãy xuất ra cho đội tôi BỘ TÀI LIỆU TÁC CHIẾN NGOẠI GIAO gồm đúng 4 phần chi tiết sau:
+<output_contract>
+Hãy xuất ra BỘ TÀI LIỆU TÁC CHIẾN NGOẠI GIAO gồm đúng 4 phần chi tiết, trình bày rõ ràng để Thành viên 2 và 3 thực hiện ngay:
 
-### PHẦN 1: ĐẶT TÊN GAME & SLOGAN "HÚT VOTE"
-1. Đề xuất 05 Tên Game (Gồm cả tiếng Việt và tiếng Anh):
-   - 2 tên phong cách Ngầu / Kịch tính / Arcade.
-   - 3 tên phong cách Hài hước / Chơi chữ / Đậm chất meme sinh viên IT.
-2. Đề xuất 05 Slogan ngắn (dưới 10 chữ) cực kỳ bắt tai để viết to lên Bảng Bình Chọn và màn hình Title của game.
+### PHẦN 1: 05 TÊN GAME & 05 SLOGAN "SÁT THỦ"
+1. **05 Tên Game (Kèm bản tiếng Việt & tiếng Anh)**:
+   - 02 Tên phong cách Đỉnh cao / Cyber / Arcade 3D.
+   - 03 Tên phong cách Chơi chữ / Hài hước / Đậm chất Meme sinh viên CNTT.
+2. **05 Slogan ngắn (Dưới 10 chữ)**: Có vần điệu, kích thích sự tò mò và thách thức khán giả chơi thử.
 
-### PHẦN 2: BẢN VẼ THIẾT KẾ "BẢNG BÌNH CHỌN STICKER" (BẰNG BÚT DẠ)
-Hãy hướng dẫn chi tiết cho Thành viên 2 (không cần giỏi hội họa vẫn vẽ đẹp bằng bút dạ) cách bố cục tấm bảng bình chọn thành 4 khu vực:
-- Khu vực Header (Trên cùng): Cách viết Tên Game & Tên Đội sao cho nổi bật từ khoảng cách 5 mét.
-- Khu vực Trung tâm (Mascot & Visual): Mô tả một hình vẽ nhân vật/biểu tượng siêu đơn giản bằng nét bút dạ (kèm câu thoại meme trong bóng thoại) thể hiện đúng Cú Twist của game.
-- Khu vực Kêu gọi Hành động (Call-To-Action): Câu văn hài hước dụ khán giả dán sticker + Cách kẻ khung "VÙNG DÁN STICKER ĐỘT PHÁ" (Ví dụ: kẻ thành hình thanh máu Boss, mỗi sticker của khán giả là 1 đòn đánh Boss, hoặc bình sạc năng lượng...).
-- Khu vực Mã QR (Nếu làm Web Game): Khung chữ dẫn dụ khán giả rút điện thoại quét QR chơi thử ngay tại chỗ.
+### PHẦN 2: BẢN VẼ BỐ CỤC "BẢNG BÌNH CHỌN STICKER" BẰNG BÚT DẠ (CHỈ DẪN TỪNG NÉT VẼ)
+Hướng dẫn Thành viên 2 chia bảng bình chọn thành 4 khu vực trực quan (dễ vẽ bằng bút dạ trong 30 phút):
+1. **Khu A - Tiêu đề 3D (Top Banner)**: Cách vẽ chữ khối 3D nổi bật từ khoảng cách 5 mét.
+2. **Khu B - Hình vẽ Mascot Trung Tâm & Bóng Thoại Meme**: Mô tả chi tiết từng nét vẽ một hình khối 3D đơn giản/hài hước đại diện cho nhân vật & Cú Twist của game, kèm câu thoại hài hước.
+3. **Khu C - "Bẫy Sticker Tương Tác" (Interactive Sticker Target)**: Thay vì chỉ kẻ ô vuông nhàm chán, hãy thiết kế vùng dán sticker thành một trò chơi tương tác liên quan đến game (VD: Vẽ Thanh Máu Trùm Cuối / Lò Phản Ứng Năng Lượng — mỗi Sticker khán giả dán vào là +1000 Sát thương tiêu diệt Boss!).
+4. **Khu D - Khung QR Code "Quét Là Chơi Ngay 3D"**: Câu dẫn dụ khán giả quét mã QR chơi bản Web Three.js trực tiếp trên điện thoại trong 3 giây.
 
-### PHẦN 3: KỊCH BẢN THUYẾT TRÌNH (PITCHING 90 GIÂY) & BỘ CÂU HỎI PHẢN BIỆN BGK
-1. Kịch bản nói 90 giây chia làm 4 mốc thời gian chuẩn xác:
-   - [00s - 15s] Hook & Giải nghĩa Chủ đề: Câu chào ấn tượng + Cách đội biến chủ đề "[CHỦ ĐỀ]" thành góc nhìn độc đáo.
-   - [15s - 45s] Trình diễn Cú Twist & Gameplay (Ăn 40đ Sáng tạo + 20đ Trải nghiệm): Lời thuyết minh khớp với lúc Thành viên 1 đang chơi live demo trên màn hình. Chỉ rõ sự đánh đổi (Risk vs Reward) và hiệu ứng Juice.
-   - [45s - 75s] Minh chứng Sức mạnh AI & Dấu ấn Con người (Ăn 10đ AI): Giải thích ngắn gọn quy trình phối hợp hệ thống Prompt tuần tự và cách đội kiểm soát/tinh chỉnh code.
-   - [75s - 90s] Lời mời Trải nghiệm (Call to Play): Mời BGK chạm tay vào phím chơi thử (nhấn mạnh thao tác dễ hiểu trong 3 giây và phím R chơi lại tức thì).
-2. Dự đoán 03 Câu hỏi hóc búa nhất mà Ban Giám Khảo sẽ hỏi về tựa game này + Gợi ý câu trả lời thông minh, lễ phép, ghi điểm tuyệt đối.
+### PHẦN 3: KỊCH BẢN PITCHING 90 GIÂY & PHẢN BIỆN BAN GIÁM KHẢO
+1. **Kịch bản nói 90 giây (Khớp từng giây với màn hình Live Demo Three.js)**:
+   - **[00s - 15s] The Hook & Theme Twist**: Câu mở đầu chạm thẳng vào chủ đề "{{CHỦ_ĐỀ}}" và tuyên bố Cú Twist đảo ngược quy luật.
+   - **[15s - 45s] Live 3D Gameplay & Risk-Reward (Săn 40đ Sáng tạo + 20đ Trải nghiệm)**: Lời bình khi Thành viên 1 đang điều khiển trên màn hình (nhấn mạnh chiều sâu 3D Three.js, ánh sáng động, hiệu ứng rung lắc/HitStop và sự đánh đổi sinh tử).
+   - **[45s - 75s] Quy trình Dây chuyền AI 11 Bước & Kiểm soát Con người (Săn 10đ AI)**: Giới thiệu ngắn gọn hệ thống Prompt Pipeline (từ Subject -> Style Lock -> Zero-Ambiguity Spec -> Three.js WebGL Optimization) và cách đội ngũ tinh chỉnh toán học 3D.
+   - **[75s - 90s] Call-to-Playtest**: Mời giám khảo nhấn thử phím (nhấn mạnh: *"Chết bấm phím R hồi sinh trong 0.01 giây, không tốn 1 giây chờ load!"*).
+2. **03 Câu Hỏi Phản Biện Khó Nhất Từ BGK & Đáp Án Ghi Điểm Tuyệt Đối**:
+   - Câu hỏi 1 (Về tính sáng tạo & độ cân bằng của Cú Twist).
+   - Câu hỏi 2 (Về kỹ thuật: Tại sao chọn Web Three.js thay vì Engine truyền thống và cách xử lý hiệu năng 60 FPS).
+   - Câu hỏi 3 (Về vai trò thực sự của con người khi sử dụng AI).
 
-### PHẦN 4: NỘI DUNG ĐIỀN NHANH VÀO BÁO CÁO AI_REPORT.MD
-Viết sẵn 3 đoạn văn ngắn gọn, chuyên nghiệp để Thành viên 3 copy thẳng vào file báo cáo nộp BTC:
-- Đoạn 1: Lý do lựa chọn kiến trúc và công cụ AI cho tựa game này.
-- Đoạn 2: Minh chứng quá trình con người kiểm tra, sửa lỗi logic và cân bằng thông số (Balancing) từ đầu ra của AI.
-- Đoạn 3: Giá trị cốt lõi giúp game vận hành theo luật cố định, ổn định 60 FPS.
+### PHẦN 4: NỘI DUNG COPY-PASTE VÀO FILE `AI_SHOWCASE/AI_REPORT.md`
+Xuất sẵn một khối Markdown hoàn chỉnh chứa nội dung báo cáo minh chứng AI (Công đoạn áp dụng, Prompt tiêu biểu, và 4 hạng mục con người đã trực tiếp kiểm định/chỉnh sửa trong mã nguồn Three.js) để Thành viên 3 dán thẳng vào `AI_REPORT.md`.
+</output_contract>
 ```

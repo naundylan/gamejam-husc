@@ -1,100 +1,111 @@
-# 06. MOTION PROMPT (BIẾN VẬT THỂ TĨNH THÀNH 8 GÓC ĐỘ, HOẠT ẢNH & HIỆU ỨNG)
+# 06. MOTION PROMPT (DIỄN HOẠT THREE.JS 3D/2.5D: 8 HƯỚNG, HÀNH ĐỘNG & HIỆU ỨNG VFX)
 
-## 📌 1. Giải Đáp Kỹ Thuật Quan Trọng: Output Nên Là 1 File Hay 8 File Rời?
+## 📌 1. Giải Pháp Kỹ Thuật Tối Thượng Trên Web Three.js: 01 File Duy Nhất!
 
 > [!IMPORTANT]
-> **KẾT LUẬN KỸ THUẬT: LUÔN XUẤT RA ĐÚNG 01 FILE DUY NHẤT (SPRITE SHEET HOẶC 1 MODULE CODE ĐA TRẠNG THÁI)!**
-> * **Tại sao TUYỆT ĐỐI KHÔNG xuất 8 file ảnh rời nhau?**
->   1. **Lệch tâm & Lệch tỷ lệ (Pivot & Scale Drift)**: Nếu AI tạo 8 file ảnh ở 8 lần khác nhau, nhân vật khi quay từ hướng Trái sang hướng Lên sẽ bị to/nhỏ khác nhau và bị giật vị trí chân đứng.
->   2. **Chớp hình khi tải (Loading Flicker)**: Load 8-12 file ảnh lẻ khiến code phức tạp và dễ bị khựng frame khi nhân vật đổi trạng thái lần đầu.
-> * **2 Định dạng 1-File Chuẩn Nhất (Được thiết kế sẵn trong Prompt dưới đây)**:
->   1. **Định dạng Ảnh (`1 File Sprite Sheet Grid`)**: Gom toàn bộ 8 hướng (hoặc các động tác Đứng, Chạy, Nhảy, Đánh) vào **1 tấm ảnh duy nhất chia lưới đều nhau** (VD: Lưới ngang `1x8` hoặc `2x4`, mỗi ô đúng `64x64px`, tâm nhân vật đặt đúng chính giữa từng ô).
->   2. **Định dạng Code (`1 File SVG/Canvas Multi-State Component`)**: Nếu bước 05 bạn xuất ra SVG hoặc hàm Canvas JS, bước 06 này sẽ nâng cấp nó thành **1 file code duy nhất có tham số `(direction, actionState, time)`** tự động xoay 8 hướng, co giãn (Squash & Stretch) và diễn hoạt mượt 60 FPS!
+> **KẾT LUẬN KỸ THUẬT TRÊN THREE.JS: LUÔN XUẤT RA ĐÚNG 01 FILE MODULE DIỄN HOẠT (HOẶC 01 TẤM SPRITE SHEET ATLAS DUY NHẤT)!**
+> * **Ưu thế tuyệt đối của Three.js so với 2D truyền thống**:
+>   1. **Xoay 8 hướng hoặc 360 độ tự nhiên bằng `mesh.rotation.y`**: Nếu đối tượng từ bước `05_object_prompt.md` là một **`THREE.Group` 3D Mesh**, bạn **KHÔNG CẦN vẽ lại 8 bức ảnh ở 8 góc độ**! Three.js xoay khối 3D thật theo mọi góc nhìn (`Math.atan2(dx, dz)`), ánh sáng và bóng đổ tự động cập nhật theo thời gian thực!
+>   2. **Diễn hoạt bộ phận bằng Toán học (Procedural Rigging)**: Tay, chân, vũ khí, áo choàng trong `mesh.userData.parts` chuyển động mượt 60 FPS bằng hàm lượng giác (`Math.sin`, `Math.cos`, `THREE.MathUtils.lerp`) và hiệu ứng co giãn (`mesh.scale.set(squash, stretch, squash)`).
+>   3. **Nếu dùng Sprite 2.5D (`THREE.Sprite` / `PlaneGeometry`)**: Toàn bộ 8 hướng hoặc các động tác (Idle, Run, Jump, Attack) được đóng gói vào **01 tấm Sprite Sheet Grid duy nhất**, điều khiển bằng `texture.offset.set(col / cols, row / rows)` — không bao giờ bị lệch tâm hay chớp hình!
+
+## 🔗 2. Luồng Kết Nối (Input ➡️ Output)
+* **Input**: Mã nguồn `THREE.Group` / `SVG` / `Ảnh Sprite` tạo ra từ **`05_object_prompt.md`**.
+* **Output**: **01 File Module Diễn Hoạt (`animateEntity(mesh, state, dir, dt, elapsedTime)`)** hoặc **01 Sprite Sheet Atlas hoàn chỉnh**.
+* **Truyền sang**: Ghép trực tiếp vào vòng lặp `requestAnimationFrame` của game (cùng với `07_function_prompt.md`).
 
 ---
 
-## 🔗 2. Cách Kết Hợp Với Các Prompt Khác
-* **Đầu vào (Input)**: File kết quả (Mã SVG / Ảnh PNG / Hàm Canvas) vừa tạo ra từ **`05_object_prompt.md`**.
-* **Đầu ra (Output)**: **01 File Sprite Sheet hoàn chỉnh** (hoặc **01 Module Code Diễn Hoạt**) của Nhân vật, Quái, Đạn, Vật phẩm hoặc Thời tiết.
-* **Bước tiếp theo**: Đưa thẳng vào souce code game (kết hợp cùng `07_function_prompt.md`).
+## 📋 3. BỘ 3 PROMPT CON CHUYÊN BIỆT (CHỌN ĐÚNG GÓC NHÌN / LOẠI VẬT THỂ)
 
----
+### 🧭 PROMPT 6A: DIỄN HOẠT GÓC NHÌN TOP-DOWN / ISOMETRIC 3D (8 HƯỚNG / 360° & HÀNH ĐỘNG)
+*(Dành cho Nhân vật, Quái vật, Xe, Phi thuyền trong không gian 3D/2.5D nhìn từ trên xuống)*
 
-## 📋 3. BỘ 3 PROMPT CON CHUYÊN BIỆT THEO GÓC NHÌN & LOẠI VẬT THỂ
-*(Hãy chọn đúng 1 trong 3 Prompt con dưới đây tùy theo góc nhìn game hoặc loại hiệu ứng bạn cần)*
+```xml
+<motion_prompt_6a type="TOP_DOWN_3D_OR_8WAY_MOTION">
+<system_role>
+Bạn là Principal Three.js Procedural Animator & Technical Character Rigger.
+</system_role>
 
-### 🧭 PROMPT 6A: DÀNH CHO GAME 2D TOP-DOWN (XOAY 4 HOẶC 8 HƯỚNG + HÀNH ĐỘNG)
-*(Biến 1 nhân vật/quái/xe/phi thuyền thành 8 góc nhìn mũi tên hoặc xoay tự do kèm hiệu ứng di chuyển)*
-
-```text
-=== [MOTION PROMPT 6A: TOP-DOWN 4/8 HƯỚNG & HOẠT ẢNH] ===
-Bạn là Technical Game Animator. Dưới đây là thiết kế gốc (Base Object) của tôi từ bước Object Prompt:
+<base_object_input>
+Dưới đây là mã nguồn / hình ảnh gốc của thực thể từ bước Object Prompt:
 """
-[DÁN MÃ SVG / HÀM CANVAS / HOẶC ĐÍNH KÈM ẢNH GỐC TỪ FILE 05 VÀO ĐÂY]
+{{DÁN_CODE_THREE_GROUP_HOẶC_SVG_TỪ_FILE_05_VÀO_ĐÂY}}
 """
+</base_object_input>
 
-Hãy giữ nguyên 100% thiết kế, màu sắc và tỷ lệ của đối tượng gốc trên, sau đó biến đổi nó thành MỘT FILE DIỄN HOẠT TOP-DOWN DUY NHẤT với các yêu cầu sau:
-1. Chế độ Góc hướng (Directional Mode):
-   - [CHỌN 1: Đủ 8 góc độ theo 8 hướng mũi tên (Đông, Đông-Nam, Nam, Tây-Nam, Tây, Tây-Bắc, Bắc, Đông-Bắc) / HOẶC 4 hướng cơ bản (Lên, Xuống, Trái, Phải) / HOẶC Góc nhìn 90 độ từ đỉnh đầu xuống xoay 360 độ theo chuột].
-2. Các trạng thái chuyển động cơ bản:
-   - Đứng yên (Idle): Nhấp nhô thở nhẹ (Breathing/Bobbing).
-   - Di chuyển (Move/Walk): [ĐIỀN: Bước chân luân phiên / Trượt có luồng khói phản lực / Trườn như slime].
-3. Hoạt động đặc biệt bổ sung (Bỏ trống nếu không có):
-   - Hành động 1: [ĐIỀN HOẶC ĐỂ TRỐNG - VD: Vung vũ khí chém hình vòng cung phía trước / Giật nòng súng khi bắn]
-   - Hành động 2: [ĐIỀN HOẶC ĐỂ TRỐNG - VD: Lướt nhanh (Dash) tạo bóng mờ Afterimage / Bị trúng đòn chớp trắng]
+<animation_specification>
+Hãy giữ nguyên 100% cấu trúc hình học và chất liệu của thực thể gốc, sau đó viết **01 MODULE DIỄN HOẠT DUY NHẤT** thực hiện đầy đủ các chuyển động sau:
+1. Chế độ Xoay Hướng (Directional Rotation):
+   - [CHỌN 1: Xoay 360 độ mượt mà theo hướng di chuyển/con trỏ chuột bằng `THREE.MathUtils.lerpAngle` / HOẶC Khóa cứng 8 góc độ chuẩn (0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°) theo 8 hướng mũi tên].
+   - Khi đổi hướng hoặc di chuyển ngang, thân nhân vật nghiêng nhẹ vào tâm cua (`mesh.rotation.z = -turnVelocity * 0.15` - Banking Effect).
+2. Các Trạng thái Chuyển động Cơ bản (Base Locomotion States):
+   - `IDLE` (Đứng yên): Nhấp nhô thở nhẹ theo trục Y (`Math.sin(time * 3) * 0.05`), vũ khí và tay đung đưa nhẹ.
+   - `MOVE` (Di chuyển): Nảy bước chân nhịp nhàng (`Math.abs(Math.sin(time * 12))`), nghiêng người về phía trước (`rotation.x = 0.15`), co giãn Squash & Stretch.
+3. Các Hoạt động Đặc biệt (Bỏ trống nếu không có):
+   - Hành động Đặc biệt 1 (`ATTACK / SHOOT`): "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG: VD: Vung vũ khí chém ngang 180 độ kèm độ giật lùi Recoil / Giật nòng pháo về sau rồi trả về bằng Lerp}}"
+   - Hành động Đặc biệt 2 (`DASH / TWIST_SKILL`): "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG: VD: Kéo giãn thân dài ra theo trục Z (Stretch 1.5x) và để lại bóng mờ / Xoay tít 360 độ như cơn lốc}}"
+   - Hành động Đặc biệt 3 (`HIT / DEATH`): "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG: VD: Giật ngửa ra sau, chớp toàn bộ material.emissive sang trắng trong 0.08s}}"
 4. ĐỊNH DẠNG 1-FILE OUTPUT BẮT BUỘC:
-   - [CHỌN 1]:
-     + (A) "01 Tấm Ảnh Sprite Sheet Duy Nhất (PNG)": Xếp các hướng và frame vào một lưới đều nhau (Grid), kích thước mỗi ô bằng nhau tuyệt đối, tâm (Pivot) đặt chính giữa đáy hoặc tâm mỗi ô, nền trong suốt, không bị dính viền giữa các ô.
-     + (B) "01 File Code SVG / HTML5 Canvas Animator Duy Nhất": Viết thành một hàm/class hoàn chỉnh `renderTopDownEntity(ctx, x, y, angle8, state, tick)` xử lý trọn gói việc vẽ đủ các hướng, co giãn Squash & Stretch và hoạt động đặc biệt.
+   - [CHỌN 1: Module hàm Three.js `updateEntityMotion(mesh, state, targetAngle, dt, elapsedTime)` hoàn chỉnh / HOẶC 01 Tấm Sprite Sheet 8 hướng chia lưới đều nhau kèm code `THREE.CanvasTexture` UV offset].
+</animation_specification>
+</motion_prompt_6a>
 ```
 
 ---
 
-### 🏃 PROMPT 6B: DÀNH CHO GAME 2D GÓC NHÌN NGANG (SIDE-SCROLLER / PLATFORMER)
-*(Biến 1 nhân vật/quái nhìn ngang thành bộ chuyển động: Đứng yên, Tới/Lui, Nhảy, Rơi và Chiêu thức đặc biệt)*
+### 🏃 PROMPT 6B: DIỄN HOẠT GÓC NHÌN NGANG 2.5D (SIDE-SCROLLER: TỚI, LUI, NHẢY, ĐÁNH)
+*(Dành cho game 2.5D Platformer / Side-view Action trên Three.js)*
 
-```text
-=== [MOTION PROMPT 6B: SIDE-VIEW HOẠT ẢNH HÀNH ĐỘNG] ===
-Bạn là 2D Character Animator. Dưới đây là thiết kế gốc (Base Object) của tôi từ bước Object Prompt:
-"""
-[DÁN MÃ SVG / HÀM CANVAS / HOẶC ĐÍNH KÈM ẢNH GỐC TỪ FILE 05 VÀO ĐÂY]
-"""
+```xml
+<motion_prompt_6b type="SIDE_VIEW_2_5D_MOTION">
+<system_role>
+Bạn là Lead 2.5D Action Animator trên nền tảng Three.js WebGL.
+</system_role>
 
-Hãy giữ nguyên 100% thiết kế và bảng màu của đối tượng gốc, biến đổi nó thành MỘT FILE DIỄN HOẠT GÓC NHÌN NGANG (SIDE-VIEW) DUY NHẤT gồm các trạng thái:
-1. Các hoạt ảnh bắt buộc:
-   - Đứng yên (Idle - 2 frames): Nhún nhẹ cơ thể và vũ khí.
-   - Di chuyển Tới / Lui (Run/Walk - 4 frames): Bước chạy dứt khoát (Lưu ý: Chỉ cần vẽ hướng nhìn sang Phải, khi đi Lùi/sang Trái code sẽ tự lật ngang `scaleX = -1` để tiết kiệm 50% tài nguyên!).
-   - Nhảy lên & Rơi xuống (Jump & Fall - 2 frames): Tư thế co chân bật nhảy (Stretch dọc) và tư thế tiếp đất (Squash ngang).
+<base_object_input>
+Dưới đây là mã nguồn / hình ảnh gốc của thực thể từ bước Object Prompt:
+"""
+{{DÁN_CODE_THREE_GROUP_HOẶC_SVG_TỪ_FILE_05_VÀO_ĐÂY}}
+"""
+</base_object_input>
+
+<animation_specification>
+Hãy xuất ra **01 MODULE DIỄN HOẠT SIDE-VIEW DUY NHẤT** cho thực thể trên với đầy đủ các trạng thái:
+1. Các hoạt ảnh cơ bản bắt buộc:
+   - `IDLE` (Đứng yên): Nhún vai và vũ khí theo nhịp thở.
+   - `RUN_FORWARD / RUN_BACKWARD` (Chạy tới / Lùi): Tự động quay mặt sang Phải (`rotation.y = Math.PI/2`) hoặc Trái (`rotation.y = -Math.PI/2`) mượt mà bằng Lerp; chân tay đánh nhịp ngược pha nhau.
+   - `JUMP & FALL` (Nhảy lên & Rơi xuống): Khi bật nhảy kéo giãn trục Y (`scale.set(0.8, 1.3, 0.8)`), khi chạm đất ép dẹt (`scale.set(1.3, 0.7, 1.3)`) rồi đàn hồi về `(1, 1, 1)`.
 2. Các hoạt động đặc biệt (Bỏ trống nếu không có):
-   - Đòn tấn công / Kỹ năng: [ĐIỀN HOẶC ĐỂ TRỐNG - VD: Đâm kiếm tới trước / Bắn chưởng năng lượng]
-   - Trạng thái Trúng đòn / Chết: [ĐIỀN HOẶC ĐỂ TRỐNG - VD: Ngửa người ra sau chớp trắng / Tan biến thành hạt]
-   - Hoạt động riêng theo chủ đề: [ĐIỀN HOẶC ĐỂ TRỐNG]
+   - Chiêu thức / Tấn công: "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG: VD: Đập vũ khí từ trên xuống tạo sóng xung kích / Lướt chém trên không}}"
+   - Hoạt động đặc thù theo chủ đề: "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG}}"
 3. ĐỊNH DẠNG 1-FILE OUTPUT BẮT BUỘC:
-   - [CHỌN 1]:
-     + (A) "01 Tấm Ảnh Sprite Sheet Ngang Duy Nhất (PNG)": Chia thành các hàng (Mỗi hàng là 1 trạng thái: Hàng 1 Idle, Hàng 2 Run, Hàng 3 Jump, Hàng 4 Special), các ô vuông vức đồng kích thước, chân nhân vật luôn chạm đúng 1 đường baseline cố định.
-     + (B) "01 Module Code SVG / HTML5 Canvas Animator Duy Nhất": Hàm `renderSideEntity(ctx, x, y, facingRight, state, tick)` tự động diễn hoạt mượt mà mọi trạng thái trên.
+   - Xuất ra 01 hàm JavaScript Three.js tự chứa `updateSideEntityMotion(mesh, state, facingDir, velocityY, dt, elapsedTime)` (hoặc 01 Sprite Sheet ngang đồng kích thước).
+</animation_specification>
+</motion_prompt_6b>
 ```
 
 ---
 
-### 💥 PROMPT 6C: DÀNH CHO ĐẠN, VẬT PHẨM, HIỆU ỨNG CHIÊU THỨC & THỜI TIẾT (VFX / PROPS / WEATHER)
-*(Không giới hạn ở người hay quái: Dùng cho viên đạn xoay, vụ nổ, đồng xu lấp lánh, mưa, tuyết, sương mù, hào quang)*
+### 💥 PROMPT 6C: DIỄN HOẠT ĐẠN, VẬT PHẨM, HIỆU ỨNG NỔ & THỜI TIẾT 3D (THREE.JS VFX & WEATHER)
+*(Dùng cho mọi thứ ngoài nhân vật: Đạn bay, Vụ nổ mảnh vỡ 3D, Vòng sáng Buff, Mưa, Tuyết, Bụi không gian, Sấm sét)*
 
-```text
-=== [MOTION PROMPT 6C: HIỆU ỨNG ĐẠN, VẬT PHẨM & THỜI TIẾT (VFX & ENVIRONMENT MOTION)] ===
-Bạn là Technical VFX Artist cho Game 2D. Dưới đây là vật thể/hiệu ứng gốc từ bước Object Prompt (hoặc mô tả hiệu ứng cần tạo):
-"""
-[DÁN MÃ SVG / ẢNH VẬT THỂ TỪ FILE 05 HOẶC MÔ TẢ HIỆU ỨNG VÀO ĐÂY]
-"""
+```xml
+<motion_prompt_6c type="THREEJS_VFX_PROJECTILE_WEATHER">
+<system_role>
+Bạn là Senior Three.js VFX & Particle Systems Engineer.
+</system_role>
 
-Hãy tạo ra MỘT FILE DIỄN HOẠT HIỆU ỨNG DUY NHẤT cho đối tượng này theo cấu hình sau:
-1. Loại đối tượng chuyển động:
-   - [CHỌN 1: Đạn bay & Đuôi đạn (Projectile + Trail) / Vụ nổ khi va chạm (Impact/Explosion VFX) / Vật phẩm xoay & Phát sáng (Floating Collectible) / Hiệu ứng Thời tiết & Môi trường (Mưa, Tuyết, Gió bụi, Sấm sét, Sương mù)].
-2. Quy luật chuyển động yêu cầu:
-   - Chuyển động chính: [ĐIỀN - VD: Viên đạn xoay tròn liên tục kèm đuôi hạt sáng tắt dần / Vật phẩm bay nhấp nhô lên xuống theo hàm Sin và tỏa vòng sáng / Vụ nổ bung ra 5 frame từ lõi trắng sang khói đen].
-   - Biến thể trạng thái đặc biệt (Bỏ trống nếu không có): [ĐIỀN HOẶC ĐỂ TRỐNG - VD: Khi đạn chí mạng thì to gấp đôi và có tia sét quấn quanh].
-3. ĐỊNH DẠNG 1-FILE OUTPUT BẮT BUỘC:
-   - [CHỌN 1]:
-     + (A) "01 Module Code JS/Canvas Procedural VFX (Khuyên dùng số 1 cho Đạn, Hạt & Thời tiết)": Xuất ra class/function tự chứa, xử lý toàn bộ toán học hạt (Particle Emitter), độ mờ (Alpha decay) và chuyển động mượt 60 FPS không tốn bộ nhớ ảnh.
-     + (B) "01 Tấm Sprite Sheet Hiệu Ứng (PNG Strip 4-6 frames)": Xếp thành 1 dải ngang từ lúc bắt đầu hiệu ứng đến lúc tan biến trên nền trong suốt.
+<vfx_specification>
+Hãy thiết kế cho tôi **01 MODULE HIỆU ỨNG ĐỘNG THREE.JS DUY NHẤT** cho đối tượng sau:
+- Loại đối tượng / Hiệu ứng: [CHỌN 1: Đạn bay kèm đuôi sáng (Projectile + Trail) / Vụ nổ mảnh vỡ 3D (3D Debris Explosion) / Vật phẩm bay lơ lửng & Vòng hào quang (Floating Item) / Hiệu ứng Thời tiết & Môi trường 3D (Mưa 3D, Tuyết rơi, Bụi phát sáng, Sấm sét, Sương mù)]
+- Mô tả chuyển động chính: "{{ĐIỀN: VD: Khi quái chết, bắn tung ra 20 khối lập phương nhỏ bay theo quỹ đạo parabol có trọng lực, nảy trên mặt sàn rồi thu nhỏ biến mất / Hoặc Mưa neon rơi chéo trong không gian 3D quanh Camera}}"
+- Biến thể đặc biệt (Bỏ trống nếu không có): "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG}}"
+
+<performance_constraints>
+- BẮT BUỘC sử dụng `THREE.InstancedMesh`, `THREE.Points` (`BufferGeometry`), hoặc Object Pool tái sử dụng để vẽ hàng trăm hạt mà chỉ tốn **01 Draw Call**, giữ vững 60 FPS tuyệt đối.
+- Tuyệt đối không tạo mới (`new THREE.Mesh`) liên tục mỗi frame mà không thu hồi (`dispose` / pool).
+</performance_constraints>
+</vfx_specification>
+</motion_prompt_6c>
 ```

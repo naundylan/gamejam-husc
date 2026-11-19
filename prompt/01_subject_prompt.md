@@ -1,60 +1,80 @@
-# 01. SUBJECT PROMPT (PROMPT CHỦ ĐỀ -> SINH GAMEPLAY PROMPT)
+# 01. SUBJECT PROMPT (TREE-OF-THOUGHTS: BIẾN CHỦ ĐỀ BTC THÀNH THREE.JS GAMEPLAY PROMPT)
 
-## 📌 1. Mục Đích Sử Dụng
-* Dùng ngay tại **Phút thứ 00:00** khi Ban Tổ Chức vừa công bố Chủ đề (Theme) của cuộc thi.
-* Giúp biến một chủ đề ngắn gọn/trừu tượng của BTC thành một **Gameplay Prompt hoàn chỉnh** đã được cài cắm sẵn toàn bộ tiêu chí ăn điểm tuyệt đối (40đ Sáng tạo Twist, 20đ Trải nghiệm Juice, 20đ Vòng chơi hoàn chỉnh 150 phút).
-* Bạn có thể **spam prompt này trên 2-3 tab AI cùng lúc** (Claude, ChatGPT, Grok, Antigravity) để lấy ra các phương án khác nhau và chọn ra 1 concept ưng ý nhất trong vòng 3 phút đầu tiên.
+## 📌 1. Mục Đích & Kỹ Thuật Tối Ưu Đã Áp Dụng
+* **Mục đích**: Dùng ở **Phút 00:00** ngay khi BTC công bố chủ đề. Biến 1 từ khóa chủ đề thành 1 **Three.js Gameplay Prompt hoàn chỉnh** sẵn sàng ăn trọn 100/100 điểm.
+* **Kỹ thuật Prompt Engineering**:
+  - **Tree-of-Thoughts (ToT)**: Bắt buộc AI phân nhánh 3 hướng tiếp cận khác nhau (Risk-Reward Twist, Spatial 3D/2.5D Twist, Viral Meme Twist), tự chấm điểm khả thi trong 150 phút trên Three.js rồi mới chọn nhánh tối ưu nhất.
+  - **Few-Shot Contrastive Calibration**: Dạy AI phân biệt rõ thế nào là một ý tưởng "Clone tầm thường (15/40đ)" vs "Cú Twist 40/40đ trên Three.js".
+  - **XML Schema Enforcement**: Đóng khung chặt chẽ cho Claude 3.5/4, GPT-4o/o1, Grok, Gemini.
+* **Khuyến nghị tham số**: `Temperature = 0.75` (Lý tưởng để đột phá ý tưởng nhưng vẫn bám sát ràng buộc kỹ thuật).
 
-## 🔗 2. Cách Kết Hợp Với Các Prompt Khác
-* **Đầu vào (Input)**: Chủ đề (Theme) của BTC công bố + (Tùy chọn) Thể loại bạn thích.
-* **Đầu ra (Output)**: Một bản **Gameplay Prompt** hoàn chỉnh.
-* **Bước tiếp theo**: Copy toàn bộ phần Output của AI dán sang **`02_gameplay_prompt.md`** (để lưu trữ làm gốc), sau đó nạp tiếp vào:
-  - `03_presentation_prompt.md` (để Thành viên 2 đi vẽ bảng bình chọn và soạn Pitch).
-  - `04_style_prompt.md` (để khóa phong cách UI & Đồ họa).
-  - `07_function_prompt.md` (để xuất đặc tả kỹ thuật cho AI code game).
-  - `10_analyze_prompt.md` (để chấm điểm thử ý tưởng ngay từ trong trứng nước).
+## 🔗 2. Luồng Kết Nối (Input ➡️ Output)
+* **Input**: Chủ đề BTC công bố (`{{THEME}}`).
+* **Output**: Một khối `GAMEPLAY PROMPT CHÍNH THỨC` hoàn chỉnh.
+* **Nơi nhận tiếp theo**: Lưu vào `02_gameplay_prompt.md`, sau đó truyền đồng thời vào `03_presentation_prompt.md`, `04_style_prompt.md`, `07_function_prompt.md` và `10_analyze_prompt.md`.
 
 ---
 
-## 📋 3. NỘI DUNG PROMPT (COPY TỪ ĐÂY ĐỂ SỬ DỤNG)
+## 📋 3. NỘI DUNG PROMPT TỐI ƯU HÓA (COPY TOÀN BỘ KHỐI DƯỚI ĐÂY)
 
-```text
-=== [CONTEXT CƠ SỞ: IT GAME JAM 2026] ===
-Bạn là Chief Game Jam Architect (Tổng Công Trình Sư Thiết Kế Game Jam) với kinh nghiệm chiến thắng hàng chục kỳ GMTK và Ludum Dare.
-Chúng tôi đang thi đấu trực tiếp tại cuộc thi "IT GAME JAM WITH AI 2026" với các ràng buộc sống còn sau:
-1. Thời gian phát triển: ĐÚNG 150 PHÚT trên 1 chiếc laptop duy nhất.
-2. Nền tảng kỹ thuật: [CHỌN 1: Web Game HTML5 Canvas/JS chạy trực tiếp trên trình duyệt (Ưu tiên số 1) / HOẶC Unity 6 2D].
-3. Ma trận chấm điểm của Ban Giám Khảo (100 điểm):
-   - Ý tưởng sáng tạo (40 điểm - QUAN TRỌNG NHẤT): Phải có điểm khác biệt đột phá trong cơ chế (1 CÚ TWIST ngược đời/độc đáo), luật chơi kết hợp hợp lý, tạo ra lựa chọn đánh đổi (Risk vs Reward) thú vị. Tuyệt đối cấm làm game clone đơn thuần.
-   - Trải nghiệm chơi (20 điểm): Luật dễ hiểu trong 5 giây đầu, thao tác mượt, phản hồi (Game Feel/Juice: rung màn hình, dừng hình va chạm, hạt nổ, âm thanh synth) cực kỳ đã tay, có nút chơi lại tức thì (Phím R).
-   - Hiện thực hóa (20 điểm): Phải hoàn thiện trọn vẹn ít nhất 1 màn/1 vòng chơi khép kín (Menu -> Hướng dẫn -> Chơi -> Thắng/Thua -> Điểm số/Kỷ lục -> Chơi lại) trong 150 phút, 0 bug.
+```xml
+<system_role>
+Bạn là Chief Game Jam Architect & Principal Three.js WebGL Game Designer với 10+ năm kinh nghiệm giành giải Nhất tại GMTK Game Jam và Ludum Dare.
+</system_role>
 
-=== [INPUT TỪ BAN TỔ CHỨC] ===
-- CHỦ ĐỀ (THEME) VỪA CÔNG BỐ: "[ĐIỀN CHỦ ĐỀ BTC VÀO ĐÂY]"
-- Định hướng thể loại ưu tiên (bỏ trống nếu muốn AI tự chọn tối ưu nhất): "[ĐIỀN THỂ LOẠI HOẶC ĐỂ TRỐNG - VD: 2D Top-Down Arena / One-Button Arcade / Physics Puzzle / Tower Defense lai Action]"
+<context_constraints>
+Chúng tôi đang thi đấu trực tiếp tại cuộc thi "IT GAME JAM WITH AI 2026" (ĐH Khoa học - ĐH Huế) với các điều kiện bất di bất dịch:
+1. Thời gian phát triển: ĐÚNG 150 PHÚT trên 01 Laptop duy nhất (Đội 3 người).
+2. Nền tảng kỹ thuật DUY NHẤT: Web Game sử dụng **Three.js (WebGL 3D / 2.5D) + HTML5/CSS3 HUD Overlay + Web Audio API** (Không dùng Unity, không dùng tài nguyên 3D ngoài nặng nề; ưu tiên 100% Procedural Three.js Meshes, `THREE.Group`, Dynamic Lights, Emissive Glow, Particle Systems để code chạy ngay lập tức khi bấm F5).
+3. Ma trận chấm điểm 100 điểm của Ban Giám Khảo:
+   - Ý tưởng sáng tạo (40đ - TRỌNG SỐ LỚN NHẤT): Phải có 01 CÚ TWIST (cơ chế đảo ngược quy luật truyền thống), kết hợp luật chơi hợp lý, tạo ra bài toán đánh đổi (Risk vs Reward) liên tục mỗi giây.
+   - Trải nghiệm chơi (20đ): Hiểu luật trong 5 giây đầu, Game Feel/Juice bùng nổ trên không gian 3D (3D Camera Shake, HitStop, Dynamic FOV Zoom, Light Flash, Debris Particles, Web Audio Synth), phím [R] chơi lại tức thì trong 0.01s.
+   - Hiện thực hóa (20đ): Hoàn chỉnh trọn vẹn 01 vòng chơi khép kín (Menu -> Play -> Win/Lose -> Score/HighScore -> Instant Replay) mượt 60 FPS, 0 bug.
+</context_constraints>
 
-=== [NHIỆM VỤ CỦA BẠN] ===
-Từ chủ đề trên, hãy thiết kế cho tôi 03 PHƯƠNG ÁN GAME KHÁC NHAU (Phương án 1: An toàn nhưng Twist cực cuốn; Phương án 2: Độc lạ, hài hước, dễ viral câu vote khán giả; Phương án 3: Tập trung vào cơ chế đánh đổi Risk-Reward đỉnh cao).
+<few_shot_calibration>
+Hãy học cách phân biệt giữa một ý tưởng TỆ (Bị loại) và ý tưởng ĐẠT 40/40 ĐIỂM SÁNG TẠO:
+- [VÍ DỤ SAI - CLONE TẦM THƯỜNG (15/40đ)]: Chủ đề "Ánh sáng". Người chơi điều khiển nhân vật cầm đèn pin đi bắn quái trong bóng tối, hết pin thì thua. -> Quá cũ, không có sự đánh đổi cơ chế.
+- [VÍ DỤ ĐÚNG - CÚ TWIST 40/40đ TRÊN THREE.JS]: Chủ đề "Ánh sáng". Vũ khí duy nhất để tiêu diệt quái chính là "Bán kính nguồn sáng (`THREE.PointLight`)" trên người bạn. Mỗi phát bắn làm thu hẹp bán kính ánh sáng và tầm nhìn 3D của bạn lại, nhưng đạn lại to và nhân hệ số điểm gấp bội (Chiến đấu trong mù lòa = Điểm x10; Giữ đèn sáng rõ = Sát thương yếu). Muốn hồi ánh sáng phải lao vào tâm vụ nổ của quái!
+</few_shot_calibration>
 
-Sau đó, chọn ra 01 PHƯƠNG ÁN XUẤT SẮC NHẤT (có khả năng đạt 100/100 điểm cao nhất và code xong chắc chắn trong 90 phút) rồi XUẤT RA MỘT "GAMEPLAY PROMPT" HOÀN CHỈNH đặt trong khối code markdown theo đúng cấu trúc dưới đây để tôi copy đi dùng ngay cho các AI tiếp theo:
+<input_variables>
+- CHỦ ĐỀ (THEME) TỪ BAN TỔ CHỨC: "{{ĐIỀN_CHỦ_ĐỀ_BTC_VÀO_ĐÂY}}"
+- Góc nhìn Camera Three.js ưu tiên (Để trống nếu muốn AI tự chọn tối ưu nhất): "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG: Isometric 3D Top-Down / Tilted 2.5D Arena / Third-Person Corridor Runner / Orbital 3D}}"
+</input_variables>
+
+<reasoning_protocol>
+Thực hiện suy luận theo phương pháp Tree-of-Thoughts (ToT) qua 3 bước trước khi xuất kết quả:
+Bước 1 (Phân nhánh 3 Concept): Tạo 3 phương án game Three.js khác biệt hoàn toàn:
+  - Nhánh A (Mechanic Inversion Twist): Đảo ngược một quy luật game kinh điển (Di chuyển, Máu, Đạn, Thời gian, Trọng lực).
+  - Nhánh B (Spatial 3D/Light/Camera Twist): Tận dụng thế mạnh không gian 3D, góc xoay Camera hoặc ánh sáng của Three.js làm cơ chế cốt lõi.
+  - Nhánh C (High-Octane Viral/Chaos Twist): Cơ chế hài hước, dồn dập, cực kỳ bắt mắt khi chiếu lên màn hình lớn hội trường để hút phiếu bầu khán giả.
+Bước 2 (Ma trận chấm điểm khả thi): Chấm điểm từng nhánh theo 3 tiêu chí: `[Điểm Twist /40]`, `[Độ dễ tạo hình bằng Procedural Three.js Geometry /10]`, `[Khả năng code hoàn chỉnh trong 60 phút /10]`.
+Bước 3 (Đóng gói): Chọn nhánh có tổng điểm cao nhất (hoặc đóng gói theo yêu cầu của tôi) thành bản `GAMEPLAY PROMPT CHÍNH THỨC`.
+</reasoning_protocol>
+
+<output_contract>
+Trình bày ngắn gọn Bước 1 & Bước 2, sau đó XUẤT RA KHỐI CODE MARKDOWN CHỨA "GAMEPLAY PROMPT CHÍNH THỨC" theo đúng khuôn mẫu 8 mục dưới đây (không bỏ sót mục nào để tôi copy trực tiếp sang file 02, 03, 04, 07):
 
 ```markdown
-# GAMEPLAY PROMPT CHÍNH THỨC
-1. Tên Dự Kiến & Thể Loại (Genre & Camera View): (Ghi rõ góc nhìn Top-down, Side-view hay Fixed-screen).
-2. Cốt Truyện Cơ Bản (1-Sentence Hook): (Ngắn gọn, hài hước hoặc kịch tính, gắn chặt với chủ đề "[CHỦ ĐỀ]").
-3. CƠ CHẾ ĐẶC BIỆT / CÚ TWIST 40 ĐIỂM (The Core Twist): (Mô tả thật rõ cơ chế này hoạt động ra sao, tại sao nó ngược đời/sáng tạo, và sự đánh đổi Risk vs Reward của người chơi là gì).
-4. Vòng Lặp Gameplay Chính (Core Gameplay Loop): (Người chơi làm gì mỗi 5 giây -> 30 giây -> 2 phút).
-5. Điều Khiển & Thao Tác (Controls): (Tối giản tối đa: WASD + Chuột hoặc 1-2 phím để bất kỳ giám khảo nào cầm máy lên cũng biết chơi trong 3 giây).
-6. Cách Vượt Màn / Đạt Mục Tiêu (Win / Lose & Progression): (Điều kiện thắng, điều kiện thua, cách độ khó tăng dần theo thời gian/wave).
-7. Hệ Thống Tính Điểm & Combo (Scoring & Replayability): (Cách tính điểm thường, cách nhân hệ số Combo gắn liền với Cú Twist, lưu HighScore).
-8. Hiệu Ứng Phản Hồi & Game Feel (Juice Specification): (Khi nào rung màn hình, khi nào dừng hình HitStop, hiệu ứng hạt và âm thanh gì phát ra để lấy trọn 20 điểm Trải nghiệm).
+# GAMEPLAY PROMPT CHÍNH THỨC (THREE.JS WEBGL)
+1. Tên Dự Kiến & Góc Nhìn 3D (Title, Genre & Three.js Camera Setup):
+   - Thể loại & Góc đặt Camera (`PerspectiveCamera` FOV, góc nghiêng X/Y/Z tạo chiều sâu 3D/2.5D rõ nét).
+2. Cốt Truyện & Liên Kết Chủ Đề (1-Sentence Thematic Hook):
+   - Giải thích súc tích vì sao cơ chế game là hiện thân hoàn hảo của chủ đề "{{CHỦ_ĐỀ}}".
+3. CƠ CHẾ ĐẶC BIỆT / CÚ TWIST 40 ĐIỂM (The Core Contrarian Twist):
+   - Quy luật đảo ngược cốt lõi là gì?
+   - Bài toán Đánh đổi (Risk vs Reward): Người chơi phải hy sinh cái gì để đổi lấy sức mạnh/điểm số đột biến?
+4. Vòng Lặp Gameplay Chính (Core 30-Second Loop):
+   - Chuỗi hành động lặp lại gây nghiện từng giây: Quan sát -> Ra quyết định đánh đổi -> Hành động -> Nhận thưởng/Hậu quả.
+5. Điều Khiển & Tương Tác Không Gian 3D (Controls & Raycasting):
+   - Bộ phím tối giản (WASD + Mouse Raycast trên mặt phẳng 3D `THREE.Plane` hoặc 1-2 phím bấm). Hiểu ngay trong 3 giây.
+6. Tiến Trình, Độ Khó & Điều Kiện Thắng/Thua (Progression & Win/Lose Rules):
+   - Cách vượt màn / Sinh tồn qua các Wave, chỉ số nào tăng theo thời gian, khi nào Thắng, khi nào Game Over.
+7. Công Thức Tính Điểm, Hệ Số Nhân Twist & Động Lực Chơi Lại (Scoring & Combo Multiplier):
+   - Cách tính điểm gốc, cách nhân hệ số Combo (`x2 -> x10`) khi người chơi dám mạo hiểm với Cú Twist, lưu kỷ lục `localStorage`.
+8. Đặc Tả Game Feel 3D & Juice (Three.js Visual & Audio Feedback):
+   - Camera 3D Shake, FOV Punch, HitStop (0.04s freeze), PointLight Flash, 3D Mesh Explosion Particles (`InstancedMesh`/Debris) và âm thanh Web Audio Synth/SFX tương ứng.
 ```
+</output_contract>
 ```
-
----
-
-## 💡 4. Mẹo Sử Dụng Nhanh Trong Giờ Thi
-1. Ngay khi MC trên sân khấu đọc chủ đề, Thành viên 1 gõ chủ đề vào ô `"[ĐIỀN CHỦ ĐỀ BTC VÀO ĐÂY]"`.
-2. Bấm gửi đồng thời trên **Claude 3.5 Sonnet**, **ChatGPT** và **Grok**.
-3. Cả 3 thành viên đọc lướt 3 kết quả trong 2 phút, chọn ra **Cú Twist nào nghe xong thấy "Ồ, cái này lạ mà dễ code!"** nhất.
-4. Nếu thích Phương án 2 hoặc 3 của AI hơn Phương án 1, chỉ cần gõ ngắn gọn: *"Hãy xuất khối GAMEPLAY PROMPT CHÍNH THỨC cho Phương án số [2/3]"*.

@@ -1,74 +1,87 @@
-# 11. DETAIL PROMPT (PHẪU THUẬT VI MÔ: SỬA CHI TIẾT NHỎ & GIAO DIỆN UI CÔ LẬP TUYỆT ĐỐI)
+# 11. DETAIL PROMPT (PHẪU THUẬT VI MÔ: SỬA CHI TIẾT NHỎ, CSS UI & THREE.JS MICRO-TWEAK)
 
-## 📌 1. Mục Đích Sử Dụng
-* Khi game đã chạy ổn định (đặc biệt ở 40 phút cuối của cuộc thi), nỗi sợ lớn nhất của mọi đội thi là: **"Chỉ bảo AI đổi màu cái thanh máu hoặc sửa lại cái khung Popup Game Over, thế mà AI viết lại cả file làm hỏng luôn cơ chế bắn đạn ("Sửa 1 lan sang 10")!"**
-* Khác với `08_fix_prompt.md` (dùng để thêm/sửa/xóa cả một chức năng hay cơ chế gameplay lớn), **`11_detail_prompt.md`** được thiết kế chuyên biệt để **sửa các chi tiết nhỏ, thay thế/căn chỉnh UI, đổi font, chỉnh màu, thay icon/sprite hoặc tinh chỉnh thông số cảm giác tay**.
-* **Cơ chế Khoanh Vùng Cực Mạnh (Zero Blast-Radius Isolation)**: Khóa cứng vùng cấm (Forbidden Zones) và vùng cho phép (Target Zone), ép AI chỉ được phép thay đổi đúng đoạn CSS/HTML/Hàm vẽ UI hoặc hằng số được chỉ định, **bảo toàn 100.00% toàn bộ code logic còn lại đến từng dấu chấm phẩy**.
+## 📌 1. Mục Đích & Kỹ Thuật Tối Ưu Đã Áp Dụng
+* **Mục đích**: Chuyên trị các **chỉnh sửa chi tiết nhỏ (Micro-details)** và **thay thế/làm đẹp giao diện HTML5/CSS3 UI Overlay hoặc Visual Mesh trong Three.js** ở giai đoạn nước rút.
+* **Kỹ thuật Prompt Engineering**:
+  - **Zero Blast-Radius Isolation Lock (Khóa Khoanh Vùng Phẫu Thuật)**: Tạo ranh giới thép giữa `FORBIDDEN_ZONES` (Vòng lặp vật lý, Raycast, Va chạm, State Machine) và `ALLOWED_TARGET_ZONE` (Chỉ đúng thẻ HTML/CSS, hàm `updateHUD()`, hoặc hàm tạo hình `createMesh()`), cam kết **không bao giờ có chuyện sửa 1 chi tiết nhỏ mà lan ra làm hỏng 10 chỗ khác**.
+  - **DOM Binding Preservation Contract**: Ép AI giữ nguyên 100% tên `id` và `class` đang liên kết với JavaScript khi làm mới giao diện UI.
+* **Khuyến nghị tham số**: `Temperature = 0.1` (Độ chính xác phẫu thuật 100%).
 
-## 🔗 2. Cách Kết Hợp Với Các Prompt Khác
-* **Nhận Input từ**:
-  - **Đề xuất B** trong báo cáo của **`10_analyze_prompt.md`** (Đặc tả các vấn đề nhỏ về UI, hướng dẫn phím bấm, trải nghiệm thị giác).
-  - Hoặc kết hợp với **`04_style_prompt.md`** / **`05_object_prompt.md`** khi bạn muốn thay thế khung UI cũ bằng thiết kế SVG/CSS mới.
-* **Đầu ra (Output)**: Bản cập nhật vi mô (Surgical Patch) chính xác tuyệt đối, áp dụng ngay vào dự án mà không gây ra bất kỳ lỗi dây chuyền nào.
+## 🔗 2. Luồng Kết Nối (Input ➡️ Output)
+* **Input**: **Khối Đề Xuất B** từ **`10_analyze_prompt.md`** (hoặc yêu cầu chỉnh sửa nhỏ trực tiếp của bạn) + (Tùy chọn) Mã màu/Style từ `04_style_prompt.md` hoặc Mesh/SVG từ `05_object_prompt.md`.
+* **Output**: Bản cập nhật vi mô (Surgical Patch) chính xác tuyệt đối, không sinh lỗi phụ.
 
 ---
 
-## 📋 3. BỘ 2 PROMPT CON KHOANH VÙNG CỰC MẠNH (CHỌN ĐÚNG NHU CẦU)
+## 📋 3. BỘ 2 PROMPT CON KHOANH VÙNG CỰC MẠNH (CHỌN 11A HOẶC 11B)
 
-### 🎨 PROMPT 11A: THAY THẾ & CHỈNH SỬA CHI TIẾT GIAO DIỆN UI / HUD (SURGICAL UI PATCH)
-*(Chuyên dùng để sửa khung Popup, Thanh máu, Bảng điểm, Nút bấm, Chữ hướng dẫn phím bấm, Căn lề, Font chữ)*
+### 🎨 PROMPT 11A: PHẪU THUẬT GIAO DIỆN HTML5/CSS3 UI & HUD OVERLAY (SURGICAL UI PATCH)
+*(Dùng để sửa khung Popup Menu/Game Over, Thanh máu, Thanh Twist, Điểm số, Hướng dẫn phím bấm, Font chữ, Màu sắc UI)*
 
-```text
-=== [DETAIL PROMPT 11A: PHẪU THUẬT GIAO DIỆN UI & HUD - ZERO BLAST-RADIUS MODE] ===
-Bạn là Surgical UI/UX Frontend & Game Interface Specialist.
-Nhiệm vụ của bạn là thực hiện một chỉnh sửa/thay thế CHI TIẾT NHỎ VỀ GIAO DIỆN (UI/HUD) dựa trên đặc tả vấn đề dưới đây.
+```xml
+<detail_prompt_11a mode="SURGICAL_UI_AND_HUD_ISOLATION">
+<system_role>
+Bạn là Surgical Game UI/UX Frontend Engineer chuyên tinh chỉnh lớp giao diện HTML5/CSS3 Overlay đè trên Canvas Three.js WebGL.
+</system_role>
 
-🛑 LỆNH KHOANH VÙNG CÔ LẬP TUYỆT ĐỐI (STRICT ISOLATION LOCK - CẤM VI PHẠM):
-1. VÙNG CẤM ĐỤNG CHẠM (FORBIDDEN ZONES): Tuyệt đối KHÔNG được sửa đổi, không xóa, không đổi tên biến, và không chạm vào bất kỳ dòng code nào thuộc: Vòng lặp vật lý (`update`), Kiểm tra va chạm (`collision`), Thuật toán Spawner, Điều khiển nhân vật (`input`), hay Máy trạng thái (`GameState`).
-2. VÙNG CHO PHÉP DUY NHẤT (TARGET ZONE): Chỉ được phép can thiệp đúng vào phần tử giao diện / khối CSS / thẻ HTML overlay / hoặc hàm vẽ HUD (`drawUI / updateUI`) được nêu trong mục [VÙNG KHOANH ĐỊNH] bên dưới.
-3. GIỮ NGUYÊN ID & BINDING: Khi thay thế hoặc làm đẹp giao diện (VD: thay thanh máu, thay bảng Game Over), BẮT BUỘC giữ nguyên 100% tên `id`, `class` hoặc tên biến tham chiếu (`scoreDisplay`, `hpDisplay`, `gameOverScreen`...) để code logic bên dưới vẫn truyền dữ liệu lên UI bình thường mà không bao giờ bị lỗi `null`!
+<zero_blast_radius_lock>
+🛑 LỆNH KHOANH VÙNG CÔ LẬP TUYỆT ĐỐI (CẤM VI PHẠM DƯỚI MỌI HÌNH THỨC):
+1. VÙNG CẤM ĐỤNG CHẠM (`FORBIDDEN_ZONES`): Tuyệt đối KHÔNG được sửa đổi, không xóa, không đổi tên biến, và không chạm vào bất kỳ dòng code nào thuộc: Khởi tạo `THREE.Scene/Camera/Renderer`, Vòng lặp `animate()/update(dt)`, Xử lý va chạm 3D, Spawner, hay Điều khiển `Raycaster/Input`.
+2. VÙNG CHO PHÉP DUY NHẤT (`ALLOWED_TARGET_ZONE`): Chỉ được phép thay đổi bên trong thẻ `<style>...</style>`, các thẻ HTML thuộc lớp phủ `#uiLayer`, và hàm cập nhật hiển thị DOM `updateHUD()` được chỉ định dưới đây.
+3. BẢO TOÀN 100% DOM IDs & POINTER-EVENTS:
+   - Giữ nguyên 100% các `id="..."` hiện có để code JavaScript Three.js không bao giờ bị lỗi `Cannot set properties of null`.
+   - Mọi khung HUD chỉ hiển thị thông tin phải có `pointer-events: none;` để không chặn chuột ngắm bắn 3D trên Canvas; chỉ có nút bấm (`button`) mới đặt `pointer-events: auto;`.
+</zero_blast_radius_lock>
 
-=== [INPUT: ĐẶC TẢ VẤN ĐỀ TỪ ANALYZE PROMPT / YÊU CẦU CHI TIẾT] ===
-- VÙNG KHOANH ĐỊNH CẦN SỬA (Target UI Element): "[ĐIỀN CHÍNH XÁC PHẦN TỬ CẦN SỬA - VD: Khung Popup Game Over / Thanh máu góc trên trái / Dòng chữ hướng dẫn phím bấm dưới đáy màn hình]"
-- Đặc tả vấn đề hiện tại & Chi tiết cần thay đổi (Copy từ Đề xuất B của Analyze Prompt hoặc tự điền):
+<input_variables>
+- VÙNG KHOANH ĐỊNH CẦN SỬA (`Target UI Component`): "{{ĐIỀN_CHÍNH_XÁC_PHẦN_TỬ_UI: VD: Cụm Thanh Máu & Thanh Twist góc trên trái / Bảng Popup Game Over / Dòng nhắc phím bấm dưới đáy màn hình}}"
+- Đặc tả vấn đề & Chi tiết cần sửa (Copy từ Khối Đề Xuất B của `10_analyze_prompt.md` hoặc tự điền):
 """
-[DÁN ĐẶC TẢ VẤN ĐỀ VÀ YÊU CẦU SỬA CHI TIẾT VÀO ĐÂY - VD: Đổi thanh máu từ chữ số đơn điệu sang thanh Bar màu xanh neon có viền trắng, khi máu dưới 30% thì chuyển sang màu đỏ nhấp nháy; Làm to dòng hướng dẫn WASD + Phím R lên 18px có đổ bóng đen để BGK nhìn rõ ngay]
+{{DÁN_ĐẶC_TẢ_CHI_TIẾT_UI_CẦN_SỬA_VÀO_ĐÂY}}
 """
-- Phong cách / Mã màu áp dụng (Lấy từ Style Prompt hoặc để trống): "[ĐIỀN MÃ MÀU HEX / SVG HOẶC ĐỂ TRỐNG]"
-- File code cần can thiệp: "[ĐIỀN ĐƯỜNG DẪN FILE HOẶC DÁN ĐOẠN CODE UI VÀO ĐÂY]"
+- Phong cách / Mã màu HEX áp dụng (Lấy từ `04_style_prompt.md` hoặc để trống): "{{ĐIỀN_HOẶC_ĐỂ_TRỐNG}}"
+- Đường dẫn file code: "{{MẶC_ĐỊNH: index.html HOẶC DÁN CODE}}"
+</input_variables>
 
-=== [YÊU CẦU ĐẦU RA] ===
-1. Xác nhận vùng khoanh định: Nêu rõ bạn chỉ sửa từ dòng nào đến dòng nào (hoặc hàm/thẻ nào) và cam kết 0% ảnh hưởng tới Gameplay Logic.
-2. Thực thi chỉnh sửa chính xác vào file (hoặc xuất đoạn code thay thế khớp 100% với vị trí khoanh vùng).
+<output_contract>
+1. `<isolation_check>`: Xác nhận đúng vùng thẻ HTML/CSS/Hàm được phép sửa và cam kết 0% tác động vào Three.js Game Loop.
+2. Áp dụng chỉnh sửa chính xác vào file code.
+</output_contract>
+</detail_prompt_11a>
 ```
 
 ---
 
-### 🔧 PROMPT 11B: TINH CHỈNH VI MÔ THÔNG SỐ, HÌNH ẢNH, ÂM THANH & HIỆU ỨNG NHỎ (MICRO-TWEAK & ASSET SWAP)
-*(Chuyên dùng để thay ảnh Sprite/SVG vào khối hình học, chỉnh lại cỡ nhân vật, đổi tần số âm thanh, chỉnh độ rung màn hình, tốc độ bay của đạn mà không làm xáo trộn thuật toán)*
+### 🔧 PROMPT 11B: TINH CHỈNH VI MÔ HÌNH KHỐI THREE.JS, ÁNH SÁNG, ÂM THANH & THÔNG SỐ NHỎ (MICRO-TWEAK & MESH SWAP)
+*(Dùng để thay Mesh 3D/SVG mới cho nhân vật/quái/đạn, chỉnh góc nghiêng Camera, độ sáng đèn, độ rung màn hình, tần số âm thanh hoặc thông số tốc độ nhỏ)*
 
-```text
-=== [DETAIL PROMPT 11B: TINH CHỈNH VI MÔ THÔNG SỐ & THAY THẾ ASSET - MICRO-TWEAK MODE] ===
-Bạn là Precision Game Polish Engineer.
-Nhiệm vụ của bạn là thực hiện các tinh chỉnh vi mô (Micro-tweaks) về hình ảnh hiển thị, âm thanh hoặc hằng số cân bằng mà KHÔNG làm thay đổi bất kỳ cấu trúc thuật toán nào của game.
+```xml
+<detail_prompt_11b mode="SURGICAL_THREEJS_MICRO_TWEAK">
+<system_role>
+Bạn là Precision Three.js Visual & Polish Engineer.
+</system_role>
 
-🛑 LỆNH KHOANH VÙNG CÔ LẬP TUYỆT ĐỐI (STRICT ISOLATION LOCK):
-1. KHÔNG SỬA CẤU TRÚC HÀM: Giữ nguyên toàn bộ luồng điều khiển (`if/else`, vòng lặp `for/while`). Chỉ thay đổi đúng:
-   - Hằng số cấu hình (Tốc độ, Kích thước, Thời gian, Màu sắc, Tần số âm thanh).
-   - Hoặc lệnh vẽ hình khối (`ctx.arc / ctx.fillRect`) bằng lệnh vẽ Sprite/SVG mới tại đúng tọa độ `(x, y)` và góc xoay của thực thể đó.
-2. BẢO TOÀN HITBOX: Khi thay đổi hình ảnh hiển thị (Visual Sprite/SVG) của nhân vật, quái hoặc đạn, hãy canh chỉnh tâm vẽ (`translate / drawImage offset`) trùng khít với tâm của Hitbox vật lý để người chơi không bị cảm giác "đạn chưa chạm người đã mất máu".
+<zero_blast_radius_lock>
+🛑 LỆNH KHOANH VÙNG CÔ LẬP TUYỆT ĐỐI:
+1. KHÔNG THAY ĐỔI THUẬT TOÁN & LUỒNG LOGIC: Giữ nguyên 100% cấu trúc vòng lặp, điều kiện thắng/thua và công thức va chạm.
+2. KHI THAY THẾ HÌNH KHỐI 3D (`Mesh / Group Swap`):
+   - Chỉ thay đổi bên trong hàm tạo hình (`createPlayerMesh`, `createEnemyMesh`, `createBulletMesh`...).
+   - Tâm gốc `(0, 0, 0)` và kích thước tổng thể của `THREE.Group` mới phải khớp với bán kính va chạm `radius` hiện tại để Hitbox vẫn chuẩn xác 100%.
+3. KHI TINH CHỈNH HẰNG SỐ (`CONFIG / JUICE / AUDIO`): Chỉ sửa đúng giá trị số của hằng số được yêu cầu.
+</zero_blast_radius_lock>
 
-=== [INPUT: DANH SÁCH CÁC CHI TIẾT NHỎ CẦN TINH CHỈNH] ===
-- VÙNG KHOANH ĐỊNH (Các biến / Hàm vẽ cần chạm vào): "[ĐIỀN - VD: Hàm vẽ nhân vật drawPlayer() và thông số rung màn hình khi bắn]"
-- Đặc tả chi tiết cần sửa (Copy từ Analyze Prompt hoặc điền danh sách):
+<input_variables>
+- VÙNG KHOANH ĐỊNH CẦN CHẠM VÀO: "{{ĐIỀN_HÀM_HOẶC_BIẾN_CẦN_SỬA: VD: Hàm createPlayerMesh() và hằng số CAMERA_OFFSET / độ rung shakeIntensity}}"
+- Danh sách chi tiết nhỏ cần tinh chỉnh (Copy từ `10_analyze_prompt.md` hoặc kết quả từ `05_object_prompt.md`):
 """
-1. [CHI TIẾT 1 - VD: Thay hình tròn màu xanh của Player bằng mã SVG/hàm vẽ phi thuyền mới nhưng giữ nguyên bán kính va chạm radius = 16]
-2. [CHI TIẾT 2 - VD: Giảm độ rung màn hình khi bắn thường từ 8px xuống 3px để đỡ mỏi mắt, chỉ giữ rung mạnh 12px khi quái nổ]
-3. [CHI TIẾT 3 - VD: Đổi âm thanh khi nhặt điểm sang tiếng chuông cao vút (tần số 880Hz lên 1320Hz, sóng sine)]
+{{DÁN_DANH_SÁCH_CÁC_CHI_TIẾT_NHỎ_HOẶC_MÃ_MESH_MỚI_VÀO_ĐÂY}}
 """
-- File code cần can thiệp: "[ĐIỀN ĐƯỜNG DẪN FILE HOẶC DÁN CODE VÀO ĐÂY]"
+- Đường dẫn file code: "{{MẶC_ĐỊNH: index.html HOẶC DÁN CODE}}"
+</input_variables>
 
-=== [YÊU CẦU ĐẦU RA] ===
-1. Liệt kê chính xác các dòng/hằng số được thay đổi.
-2. Áp dụng chỉnh sửa gọn gàng, sạch sẽ vào file code, đảm bảo không phát sinh bất kỳ lỗi phụ nào.
+<output_contract>
+1. `<isolation_check>`: Liệt kê chính xác các dòng/hàm sẽ sửa, xác nhận giữ nguyên Hitbox và Game Loop.
+2. Thực thi bản cập nhật vi mô sạch sẽ vào file code.
+</output_contract>
+</detail_prompt_11b>
 ```

@@ -1,59 +1,77 @@
-# 02. GAMEPLAY PROMPT (KHUÔN MẪU & PROMPT ĐỊNH HÌNH GAMEPLAY CỐT LÕI)
+# 02. GAMEPLAY PROMPT (HIẾN PHÁP GAMEPLAY & BỘ CHUẨN HÓA Ý TƯỞNG THREE.JS)
 
-## 📌 1. Mục Đích Sử Dụng
-File này có **2 công dụng chính**:
-1. **Nơi lưu trữ "Bản Hiến Pháp Gameplay"**: Sau khi bạn chạy `01_subject_prompt.md` và chọn được 1 ý tưởng ưng ý nhất, bạn dán kết quả vào Phần 4 của file này để làm **"Nguồn dữ liệu gốc (Single Source of Truth)"** đem đi nạp vào các prompt `03`, `04`, `07`, `10`.
-2. **Prompt tự nhào nặn Gameplay**: Trong trường hợp đội của bạn tự nghĩ ra một ý tưởng trong đầu (chưa qua `01_subject_prompt`), bạn dùng Prompt ở Phần 3 để bắt AI chuẩn hóa ý tưởng thô của bạn thành một bản thiết kế Gameplay đủ 8 tiêu chí chấm điểm của BTC.
+## 📌 1. Mục Đích & Kỹ Thuật Tối Ưu Đã Áp Dụng
+* **Vai trò kép**:
+  1. **Kho Lưu Trữ Gốc (Single Source of Truth)**: Nơi lưu trữ bản `GAMEPLAY PROMPT CHÍNH THỨC` đã chốt từ bước `01_subject_prompt.md` để truyền vào toàn bộ hệ thống (`03`, `04`, `07`, `10`).
+  2. **Bộ Chuẩn Hóa Ý Tưởng Thô (Constitutional Concept Refiner)**: Nếu cả đội tự nghĩ ra một ý tưởng thô trên giấy A4, Prompt ở Phần 3 sẽ dùng kỹ thuật **Constitutional Critique & Revise** để tự động đắp thêm Cú Twist 40đ, định hình không gian 3D Three.js và hoàn thiện đủ 8 mục tiêu chuẩn.
+* **Khuyến nghị tham số**: `Temperature = 0.6` (Giữ ý tưởng gốc của đội nhưng cấu trúc hóa chặt chẽ).
 
-## 🔗 2. Cách Kết Hợp Với Các Prompt Khác
-* **Nhận Input từ**: Output của `01_subject_prompt.md` (hoặc ý tưởng thô của cả đội).
-* **Truyền Output sang**:
-  - `03_presentation_prompt.md`: Để làm truyền thông, slogan, bảng bình chọn, kịch bản thuyết trình.
-  - `04_style_prompt.md`: Để khóa phong cách đồ họa và UI.
-  - `07_function_prompt.md`: Để bóc tách thành đặc tả kỹ thuật chi tiết cho AI viết code.
-  - `10_analyze_prompt.md`: Để giám khảo AI chấm điểm thử xem đã đủ ăn 100 điểm chưa.
+## 🔗 2. Luồng Kết Nối (Input ➡️ Output)
+* **Input**: Output từ `01_subject_prompt.md` HOẶC ý tưởng thô tự nghĩ của đội.
+* **Output**: Bản `GAMEPLAY PROMPT CHÍNH THỨC (THREE.JS WEBGL)` chuẩn 8 mục.
+* **Truyền sang**: `03_presentation_prompt.md`, `04_style_prompt.md`, `07_function_prompt.md`, `10_analyze_prompt.md`.
 
 ---
 
-## 📋 3. PROMPT CHUẨN HÓA Ý TƯỞNG THÔ THÀNH GAMEPLAY PROMPT
-*(Chỉ dùng khi bạn muốn tự đưa ý tưởng riêng của đội vào để AI hoàn thiện thành bản Gameplay chuẩn)*
+## 📋 3. PROMPT CHUẨN HÓA Ý TƯỞNG THÔ THÀNH THREE.JS GAMEPLAY PROMPT
+*(Dùng khi đội đã có ý tưởng sơ bộ và muốn AI nâng cấp lên chuẩn 100/100 điểm trên Three.js)*
 
-```text
-=== [CONTEXT CƠ SỞ: IT GAME JAM 2026] ===
-Bạn là Lead Game Designer cho cuộc thi IT Game Jam 2026 (150 phút).
-Mục tiêu của chúng tôi là đạt điểm tối đa ở 3 hạng mục: Ý tưởng sáng tạo có Twist (40đ), Trải nghiệm chơi có Juice & động lực chơi lại cao (20đ), và Hiện thực hóa trọn vẹn 1 vòng chơi hoàn chỉnh không bug (20đ).
+```xml
+<system_role>
+Bạn là Principal Game Jam Mechanics Designer chuyên sâu về kiến trúc WebGL Three.js.
+</system_role>
 
-=== [INPUT: Ý TƯỞNG THÔ CỦA ĐỘI] ===
-- Chủ đề của BTC: "[ĐIỀN CHỦ ĐỀ BTC]"
-- Ý tưởng sơ bộ của đội tôi: "[MÔ TẢ NGẮN GỌN Ý TƯỞNG CỦA BẠN - VD: Điều khiển một cục nam châm hút rác vũ trụ nhưng càng hút nhiều thì càng nặng và khó né thiên thạch]"
-- Nền tảng dự kiến: "[Web Game HTML5 Canvas / HOẶC Unity 6 2D]"
+<context_constraints>
+Đội chúng tôi có một ý tưởng sơ bộ cho cuộc thi "IT GAME JAM WITH AI 2026" (150 phút, 1 Laptop).
+Nền tảng bắt buộc: **Web Three.js (3D / 2.5D WebGL) + HTML5/CSS3 Overlay + Web Audio API**.
+Bạn phải nâng cấp ý tưởng thô này sao cho đạt điểm tối đa ở 3 tiêu chí:
+- Ý tưởng sáng tạo (40/40đ): Làm sắc bén Cú Twist và cơ chế đánh đổi Risk vs Reward.
+- Trải nghiệm chơi (20/20đ): Tận dụng chiều sâu không gian 3D, ánh sáng động và hiệu ứng Juice của Three.js.
+- Hiện thực hóa (20/20đ): Đảm bảo toàn bộ hình khối có thể dựng siêu tốc bằng Procedural Three.js Geometry (`BoxGeometry`, `SphereGeometry`, `CylinderGeometry`, `ConeGeometry`, `TorusGeometry`, `THREE.Group`) trong dưới 60 phút.
+</context_constraints>
 
-=== [NHIỆM VỤ CỦA BẠN] ===
-Hãy đánh bóng, nâng cấp và hoàn thiện ý tưởng sơ bộ trên thành một bản "GAMEPLAY PROMPT CHÍNH THỨC" sắc bén, khả thi trong 150 phút, đảm bảo có đầy đủ 8 mục dưới đây (trình bày trong 1 khối markdown sạch để tôi copy):
+<input_variables>
+- Chủ đề (Theme) của BTC: "{{ĐIỀN_CHỦ_ĐỀ_BTC}}"
+- Ý tưởng thô ban đầu của đội: "{{MÔ_TẢ_NGẮN_GỌN_Ý_TƯỞNG_THÔ_CỦA_ĐỘI}}"
+</input_variables>
 
-1. Tên Dự Kiến & Thể Loại (Genre & Camera View): (Góc nhìn 2D Top-down / Side-view / Fixed Arena).
-2. Cốt Truyện Cơ Bản (1-Sentence Hook): (1-2 câu dẫn nhập giải thích tại sao game này khớp 100% với chủ đề "[CHỦ ĐỀ]").
-3. CƠ CHẾ ĐẶC BIỆT / CÚ TWIST 40 ĐIỂM (The Core Twist): (Làm nổi bật điểm độc đáo nhất: Luật chơi đảo ngược hoặc sự đánh đổi Risk vs Reward khiến BGK phải trầm trồ).
-4. Vòng Lặp Gameplay Chính (Core Gameplay Loop): (Chuỗi hành động lặp lại liên tục gây nghiện).
-5. Điều Khiển & Thao Tác (Controls): (Bảng phím bấm siêu gọn + Hướng dẫn hiển thị ngay trên màn hình).
-6. Cách Vượt Màn / Đạt Mục Tiêu (Win / Lose & Progression): (Làm sao để thắng hoặc trụ hạng, làm sao thì thua, kịch bản tăng độ khó theo mỗi 20 giây/Wave).
-7. Hệ Thống Tính Điểm & Combo (Scoring & Replayability): (Công thức cộng điểm, nhân hệ số Combo khi người chơi tận dụng tốt Cú Twist, lưu kỷ lục HighScore).
-8. Hiệu Ứng Phản Hồi & Game Feel (Juice Specification): (Danh sách các phản hồi thị giác và âm thanh: Screen Shake, HitStop, Particle, Flash, SFX khi thao tác).
+<constitutional_self_critique>
+Trước khi xuất bản thiết kế cuối cùng, hãy tự kiểm tra (Critique & Revise) theo 3 câu hỏi:
+1. Ý tưởng thô của đội có bị giống game truyền thống quá không? Nếu có, hãy bơm thêm 1 quy luật Đánh đổi (Risk vs Reward) gắn liền với Chủ đề để cứu 40 điểm Sáng tạo.
+2. Góc đặt Camera Three.js (`PerspectiveCamera` nghiêng 45-60 độ hay `OrthographicCamera` Isometric) nào giúp game nhìn có chiều sâu 3D ấn tượng nhất mà điều khiển bằng Chuột/WASD không bị rối?
+3. Vòng chơi đã khép kín từ lúc Start -> Đạt điểm/Thua -> Bấm [R] chơi lại trong 0.01s chưa?
+</constitutional_self_critique>
+
+<output_contract>
+Xuất kết quả cuối cùng trong một khối code Markdown duy nhất theo đúng chuẩn 8 mục dưới đây:
+
+```markdown
+# GAMEPLAY PROMPT CHÍNH THỨC (THREE.JS WEBGL)
+1. Tên Dự Kiến & Góc Nhìn 3D (Title, Genre & Three.js Camera Setup):
+2. Cốt Truyện & Liên Kết Chủ Đề (1-Sentence Thematic Hook):
+3. CƠ CHẾ ĐẶC BIỆT / CÚ TWIST 40 ĐIỂM (The Core Contrarian Twist & Risk-Reward):
+4. Vòng Lặp Gameplay Chính (Core 30-Second Loop):
+5. Điều Khiển & Tương Tác Không Gian 3D (Controls & Three.js Raycasting/Movement):
+6. Tiến Trình, Độ Khó & Điều Kiện Thắng/Thua (Wave Progression & Win/Lose Rules):
+7. Công Thức Tính Điểm, Hệ Số Nhân Twist & Động Lực Chơi Lại (Scoring, Combo & LocalStorage):
+8. Đặc Tả Game Feel 3D & Juice (Camera Shake, HitStop, Dynamic PointLight, 3D Debris Particles & Web Audio):
+```
+</output_contract>
 ```
 
 ---
 
-## 💾 4. BẢN LƯU "GAMEPLAY PROMPT CHÍNH THỨC" CỦA ĐỘI (DÁN VÀO ĐÂY KHI CHỐT)
-*(Khi đã chốt được Gameplay từ Prompt 01 hoặc Prompt 02, hãy dán đè vào khung dưới đây để cả 3 thành viên dùng chung xuyên suốt cuộc thi)*
+## 💾 4. BẢN LƯU "HIẾN PHÁP GAMEPLAY CHÍNH THỨC" CỦA ĐỘI (DÁN VÀO ĐÂY KHI ĐÃ CHỐT)
+*(Sau khi có Output từ file 01 hoặc từ Prompt trên, hãy dán lưu vào đây để copy sang các file 03 -> 11)*
 
 ```markdown
-# GAMEPLAY PROMPT CHÍNH THỨC CỦA ĐỘI
-1. Tên Dự Kiến & Thể Loại: [DÁN NỘI DUNG ĐÃ CHỐT VÀO ĐÂY]
-2. Cốt Truyện Cơ Bản: [...]
+# GAMEPLAY PROMPT CHÍNH THỨC (THREE.JS WEBGL)
+1. Tên Dự Kiến & Góc Nhìn 3D: [DÁN NỘI DUNG ĐÃ CHỐT VÀO ĐÂY]
+2. Cốt Truyện & Liên Kết Chủ Đề: [...]
 3. CƠ CHẾ ĐẶC BIỆT / CÚ TWIST 40 ĐIỂM: [...]
 4. Vòng Lặp Gameplay Chính: [...]
-5. Điều Khiển & Thao Tác: [...]
-6. Cách Vượt Màn / Đạt Mục Tiêu: [...]
-7. Hệ Thống Tính Điểm & Combo: [...]
-8. Hiệu Ứng Phản Hồi & Game Feel: [...]
+5. Điều Khiển & Tương Tác Không Gian 3D: [...]
+6. Tiến Trình, Độ Khó & Điều Kiện Thắng/Thua: [...]
+7. Công Thức Tính Điểm, Hệ Số Nhân Twist & Động Lực Chơi Lại: [...]
+8. Đặc Tả Game Feel 3D & Juice: [...]
 ```

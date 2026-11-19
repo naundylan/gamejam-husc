@@ -1,100 +1,110 @@
-# 07. FUNCTION PROMPT (ĐẶC TẢ KỸ THUẬT CHỨC NĂNG TUYỆT ĐỐI - ZERO AMBIGUITY)
+# 07. FUNCTION PROMPT (ĐẶC TẢ KỸ THUẬT THREE.JS TUYỆT ĐỐI - ZERO AMBIGUITY SPEC)
 
-## 📌 1. Mục Đích Sử Dụng
-* `Gameplay Prompt` (ở bước 01-02) thiên về ý tưởng, cốt truyện và cảm xúc nên thường ngắn gọn; nếu đưa thẳng cho AI viết code, mỗi con AI sẽ tự suy diễn thông số một kiểu (con thì làm đạn bay quá chậm, con thì quên làm thời gian bất tử i-frames, con thì hiểu sai quy luật của Cú Twist).
-* **`07_function_prompt.md`** đóng vai trò là **"Bộ Biên Dịch Đặc Tả Kỹ Thuật (Deterministic Technical Spec Compiler)"**: Nó nhận `Gameplay Prompt` và xuất ra một file Markdown đặc tả toàn bộ tính năng với **thuật ngữ chuyên môn chuẩn xác, công thức toán học tường minh và máy trạng thái (State Machine) chặt chẽ**.
-* Mức độ chi tiết của Output cao đến mức **loại bỏ 100% sự mơ hồ (Zero Ambiguity)**: Bất kỳ AI lập trình nào (Antigravity, Codex, Claude, GPT-4o) khi đọc bản đặc tả này đều **chỉ có thể hiểu và code theo đúng 1 hướng duy nhất**.
+## 📌 1. Mục Đích & Kỹ Thuật Tối Ưu Đã Áp Dụng
+* **Mục đích**: Biến `Gameplay Prompt` thành một **Tài Liệu Đặc Tả Kỹ Thuật Three.js (`FUNCTION_SPEC.md`)** với mức độ chi tiết cao đến mức **bất kỳ AI nào (Antigravity, Claude, Codex, GPT-4o) đọc vào cũng chỉ có thể hiểu và code theo đúng 1 hướng duy nhất (Zero Ambiguity)**.
+* **Kỹ thuật Prompt Engineering**:
+  - **Contrastive Few-Shot Calibration**: Dạy AI sự khác biệt giữa câu văn "mơ hồ" (bị cấm) và "công thức kỹ thuật Three.js tường minh" (bắt buộc).
+  - **Deterministic Mathematical Modeling**: Ép mọi cơ chế phải viết dưới dạng phương trình toán học theo `dt` (Delta-Time), tọa độ không gian 3D `(X, Y, Z)` trên mặt phẳng `XZ` (`Y = 0` là mặt sàn), và trạng thái hữu hạn (FSM).
+* **Khuyến nghị tham số**: `Temperature = 0.2` (Tối đa hóa tính chính xác, logic và nhất quán kỹ thuật).
 
-## 🔗 2. Cách Kết Hợp Với Các Prompt Khác
-* **Nhận Input từ**: `02_gameplay_prompt.md` (Bắt buộc) + `04_style_prompt.md` (Tùy chọn để lấy mã màu HEX).
-* **Đầu ra (Output)**: Một tài liệu Markdown **`FUNCTION_SPEC.md`** hoàn chỉnh.
-* **Truyền Output sang**:
-  - Đưa trực tiếp cho **Antigravity / Claude / Codex** để sinh ra toàn bộ Source Code hoàn chỉnh của game.
-  - Đưa sang **`10_analyze_prompt.md`** để đối chiếu xem các chức năng đã khớp 100% với tiêu chí chấm điểm của BTC chưa.
+## 🔗 2. Luồng Kết Nối (Input ➡️ Output)
+* **Input**: `GAMEPLAY PROMPT CHÍNH THỨC` (từ file `01` hoặc `02`) + (Tùy chọn) `[LOCKED STYLE CONTEXT]` từ file `04`.
+* **Output**: File Markdown đặc tả kỹ thuật **`FUNCTION_SPEC.md`**.
+* **Truyền sang**: Đưa thẳng cho **Antigravity / Claude** để code toàn bộ game vào `index.html`, và đưa sang **`10_analyze_prompt.md`** để kiểm định điểm số.
 
 ---
 
-## 📋 3. NỘI DUNG PROMPT (COPY TỪ ĐÂY ĐỂ SỬ DỤNG)
+## 📋 3. NỘI DUNG PROMPT TỐI ƯU HÓA (COPY TOÀN BỘ KHỐI DƯỚI ĐÂY)
 
-```text
-=== [CONTEXT CƠ SỞ: ZERO-AMBIGUITY GAME SYSTEMS ARCHITECT] ===
-Bạn là Principal Game Systems Engineer & Technical Specification Architect.
-Nhiệm vụ của bạn là chuyển hóa bản "Gameplay Prompt" bên dưới thành một TÀI LIỆU ĐẶC TẢ KỸ THUẬT CHỨC NĂNG (FUNCTIONAL SPECIFICATION DOCUMENT - Markdown) với độ chính xác tuyệt đối (Zero-Ambiguity).
+```xml
+<system_role>
+Bạn là Principal Three.js Systems Architect & Deterministic Game Specification Compiler.
+</system_role>
 
-QUY TẮC ĐẶC TẢ BẮT BUỘC:
-1. Cấm dùng từ ngữ cảm tính, mơ hồ (như "bay nhanh", "khá mạnh", "thỉnh thoảng xuất hiện"). BẮT BUỘC phải lượng hóa thành con số cụ thể, đơn vị chuẩn (px, px/s, giây, độ/radian, %) và công thức toán học tường minh theo `dt` (Delta Time tính bằng giây).
-2. Mọi cơ chế, đặc biệt là CÚ TWIST của game, phải được mô tả bằng chuỗi điều kiện Logic `IF -> THEN -> ELSE`, công thức cập nhật biến và giới hạn biên (`Math.clamp(val, min, max)`), sao cho bất kỳ AI Coder nào đọc vào cũng CHỈ HIỂU THEO ĐÚNG 1 CÁCH DUY NHẤT.
-3. Nền tảng mục tiêu: [CHỌN 1: Web Game HTML5 Canvas 2D + Vanilla JS + Web Audio API (Khung tọa độ ảo chuẩn 1280x720) / HOẶC Unity 6 2D C# (Đơn vị Unity Units, Ortho Size = 5)].
+<constitutional_guardrails>
+1. QUY TẮC ZERO-AMBIGUITY (KHÔNG MƠ HỒ): Tuyệt đối CẤM dùng các tính từ định tính như "bay nhanh", "khá rộng", "thỉnh thoảng spawn", "mạnh hơn". BẮT BUỘC phải lượng hóa 100% thành hằng số cụ thể (`units`, `units/s`, `giây`, `radian`, `%`) và công thức toán học theo `dt` (Delta Time tính bằng giây).
+2. HỆ TỌA ĐỘ THREE.JS CHUẨN:
+   - Mặt phẳng di chuyển chính là mặt sàn **`XZ` (`Y = 0`)** (hoặc mặt phẳng `XY` nếu là game Side-View 2.5D).
+   - Mọi phép đo khoảng cách va chạm trên mặt phẳng `XZ` phải dùng công thức chuẩn: `dist = Math.hypot(a.position.x - b.position.x, a.position.z - b.position.z)`.
+3. ĐỘC LẬP TẦN SỐ QUÉT: Mọi cập nhật vị trí/biến số mỗi frame phải nhân với `dt = Math.min(clock.getDelta(), 0.05)`.
+</constitutional_guardrails>
 
-=== [INPUT: GAMEPLAY PROMPT CẦN ĐẶC TẢ] ===
+<few_shot_calibration>
+- [SAI - MƠ HỒ (AI sẽ hiểu lệch nhau)]: "Khi người chơi dùng kỹ năng Twist thì bắn mạnh hơn nhưng dễ chết hơn."
+- [ĐÚNG - ĐẶC TẢ TUYỆT ĐỐI CHUẨN THREE.JS]: "Biến `twistCharge` thuộc miền `[0.0, 100.0]`. Khi giữ phím `[SPACE]`, `twistCharge = Math.min(100, twistCharge + 40 * dt)`. Hệ số sát thương đạn: `damage = baseDamage * (1 + (twistCharge / 100) * 2.0)`. Hệ số bán kính nhận sát thương của Player: `hitboxRadius = 0.8 * (1 + (twistCharge / 100) * 0.75)`. Khi thả `[SPACE]`, `twistCharge = Math.max(0, twistCharge - 25 * dt)`."
+</few_shot_calibration>
+
+<input_variables>
+- Bản Gameplay Prompt cần chuyển thành Đặc tả Kỹ thuật:
 """
-[DÁN TOÀN BỘ GAMEPLAY PROMPT TỪ FILE 01 HOẶC 02 VÀO ĐÂY]
+{{DÁN_TOÀN_BỘ_GAMEPLAY_PROMPT_TỪ_FILE_01_HOẶC_02_VÀO_ĐÂY}}
 """
+- Bản Style Prompt (Nếu đã có để đồng bộ màu sắc/ánh sáng, hoặc bỏ trống):
+"""
+{{DÁN_STYLE_PROMPT_TỪ_FILE_04_HOẶC_ĐỂ_TRỐNG}}
+"""
+</input_variables>
 
-=== [NHIỆM VỤ CỦA BẠN] ===
-Hãy xuất ra toàn bộ nội dung file đặc tả kỹ thuật trong một khối code Markdown (`FUNCTION_SPEC.md`) bao gồm đầy đủ 9 mục chuẩn công nghiệp sau:
+<output_contract>
+Hãy xuất ra toàn bộ tài liệu đặc tả kỹ thuật trong một khối code Markdown duy nhất (`FUNCTION_SPEC.md`) với đầy đủ 9 chương chi tiết dưới đây:
 
 ```markdown
-# TECHNICAL FUNCTION SPECIFICATION (ĐẶC TẢ CHỨC NĂNG TUYỆT ĐỐI)
+# TECHNICAL FUNCTION SPECIFICATION (THREE.JS WEBGL ENGINE)
 
-## 1. HỆ QUY CHIẾU, VÒNG LẶP & MÁY TRẠNG THÁI (FINITE STATE MACHINE - FSM)
-- Độ phân giải không gian logic (Virtual Canvas Resolution): `1280 x 720 px` (Tự động scale giữ nguyên tỷ lệ 16:9).
-- Chuẩn thời gian (Time Step): Mọi chuyển động phải nhân với `dt = Math.min(rawDeltaTime, 0.05)` (giây) để độc lập với tần số quét màn hình.
-- Các trạng thái FSM (`GameState`):
-  + `STATE_MENU`: Hiển thị Title, Hướng dẫn thao tác (Controls), Kỷ lục (`highScore`), chờ nhấn `[SPACE / CLICK]` để chuyển sang `STATE_PLAYING`.
-  + `STATE_PLAYING`: Cập nhật Input -> Twist Logic -> Physics -> Spawner -> Collision -> Score -> Render -> HUD.
-  + `STATE_GAMEOVER` / `STATE_VICTORY`: Đóng băng hoặc làm chậm physics, lưu `highScore` vào `localStorage`, hiển thị điểm số và lắng nghe phím `[R]` để gọi hàm `resetGame()` về `STATE_PLAYING` ngay lập tức trong 0.01s (không reload lại trang).
+## 1. KIẾN TRÚC KHÔNG GIAN 3D, CAMERA & MÁY TRẠNG THÁI (FSM)
+- Cấu hình `THREE.WebGLRenderer`: `antialias: true`, `powerPreference: "high-performance"`, `shadowMap.enabled: true`.
+- Cấu hình Camera (`THREE.PerspectiveCamera`): `FOV`, vị trí `camera.position.set(x, y, z)`, điểm nhìn `camera.lookAt(x, 0, z)` và công thức Camera Smooth Follow theo Player: `camPos.lerp(targetPos, 1 - Math.exp(-8 * dt))`.
+- Kích thước Sàn đấu (`ARENA_BOUNDS`): `minX, maxX, minZ, maxZ` (đơn vị Three.js units).
+- Máy trạng thái hữu hạn (`GameState` Enum):
+  + `MENU`: Render cảnh 3D quay chậm phía sau + Lớp phủ HTML `#menuOverlay` (Title, Hướng dẫn phím bấm, Kỷ lục `highScore`). Nhấn `[SPACE / CLICK]` -> Gọi `startGame()` sang `PLAYING`.
+  + `PLAYING`: Chạy vòng lặp `update(dt)`: `Input -> TwistEngine -> Player -> Spawner -> Enemies -> Projectiles -> Collisions -> Particles -> CameraJuice -> HUD`.
+  + `GAMEOVER` / `VICTORY`: Lưu `highScore` vào `localStorage`, hiện `#gameOverOverlay`, lắng nghe phím `[R]` gọi `resetGame()` khởi tạo lại trạng thái về `PLAYING` trong **0.01 giây** (không reload trang web).
 
-## 2. ĐẶC TẢ THỰC THỂ NGƯỜI CHƠI (PLAYER ENTITY SPECIFICATION)
-- Thuộc tính dữ liệu (Data Schema): `x, y, vx, vy, radius (hoặc width/height), speed, hp, maxHp, iFrameTimer, state, ...` (Ghi rõ giá trị khởi tạo bằng số).
-- Thuật toán Di chuyển & Điều khiển (Input Mapping & Kinematics):
-  + Công thức tính vector vận tốc chuẩn hóa (Normalized 8-way movement hoặc Mouse tracking).
-  + Cơ chế Lướt / Kỹ năng phụ (Dash / Secondary Action): Vận tốc, thời gian hiệu lực (`duration`), thời gian hồi chiêu (`cooldown`), trạng thái miễn nhiễm sát thương khi lướt.
-  + Giới hạn biên bản đồ (Boundary Clamping): Không cho phép tọa độ vượt ra ngoài khung Arena.
+## 2. ĐẶC TẢ THỰC THỂ NGƯỜI CHƠI (PLAYER ENTITY & RAYCASTING)
+- Cấu trúc dữ liệu (`Player State Object`): `mesh (THREE.Group), pos (Vector3), vel (Vector3), radius (units), speed (units/s), hp, maxHp, iFrameTimer (s), dashTimer (s), dashCooldown (s), aimAngle (rad)`.
+- Thuật toán Di chuyển & Ngắm bắn 3D (`THREE.Raycaster`):
+  + Di chuyển WASD trên mặt phẳng `XZ` (Chuẩn hóa vector chéo `length = 1`).
+  + Dùng `THREE.Raycaster` chiếu từ chuột xuống mặt phẳng ngang `new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)` để lấy tọa độ điểm ngắm 3D `aimPoint`, tính góc xoay `aimAngle = Math.atan2(aimPoint.x - player.pos.x, aimPoint.z - player.pos.z)`.
+  + Công thức Kỹ năng Lướt / Phụ (`Dash / Secondary`): Tốc độ, thời gian hiệu lực, thời gian hồi chiêu.
 
-## 3. ĐẶC TẢ THUẬT TOÁN "CÚ TWIST" CỐT LÕI (THE CORE TWIST DETERMINISTIC LOGIC)
-- Định nghĩa các biến trạng thái riêng của Cú Twist (Tên biến, kiểu dữ liệu, miền giá trị `[min, max]`).
-- Công thức toán học & Luồng xử lý từng bước ở mỗi Frame (`updateTwist(dt)`):
-  + Điều kiện kích hoạt (Trigger Condition).
-  + Tác động lên thông số của Player / Quái / Môi trường (Ghi rõ công thức cộng/trừ/nhân hệ số).
-  + Cơ chế Đánh đổi (Risk vs Reward Formula): Khi biến Twist tăng cao thì lợi ích tăng bao nhiêu % và rủi ro tăng bao nhiêu %.
-  + Cách hiển thị trực quan trạng thái Twist lên nhân vật hoặc thanh đo (Visual Gauge) để người chơi nhìn hiểu ngay.
+## 3. ĐẶC TẢ THUẬT TOÁN "CÚ TWIST 40 ĐIỂM" (DETERMINISTIC TWIST ENGINE)
+- Bảng biến số của Cú Twist: Tên biến, kiểu dữ liệu, giá trị khởi tạo, miền giới hạn `[min, max]`.
+- Phương trình Toán học cập nhật mỗi Frame (`updateTwist(dt)`):
+  + Điều kiện kích hoạt & Tốc độ biến thiên.
+  + Công thức tác động trực tiếp lên Gameplay (Sát thương, Tốc độ, Ánh sáng `PointLight.distance`, Kích thước, Điểm số).
+  + Công thức Đánh đổi (Risk vs Reward Equation) và Điều kiện phạt nếu vượt ngưỡng.
 
-## 4. ĐẶC TẢ VŨ KHÍ, ĐẠN & CƠ CHẾ TẤN CÔNG (COMBAT & PROJECTILE SYSTEM)
-- Phương thức kích hoạt (Auto-fire / Left-Click / Spacebar) và tốc độ bắn (`fireRate` tính bằng giây/viên).
-- Cấu trúc dữ liệu của Đạn/Đòn đánh: Vận tốc (`px/s`), Bán kính Hitbox (`px`), Sát thương (`damage`), Thời gian tự hủy (`ttl` giây), Số mục tiêu xuyên qua (`pierceCount`).
-- Điều kiện xóa khỏi mảng (Garbage Cleanup): Xóa ngay khi `ttl <= 0`, `pierceCount <= 0` hoặc bay ra ngoài biên màn hình.
+## 4. ĐẶC TẢ HỆ THỐNG VŨ KHÍ & ĐẠN 3D (COMBAT & PROJECTILE POOL)
+- Thông số từng loại đòn đánh: `fireRate (s)`, `bulletSpeed (units/s)`, `bulletRadius (units)`, `damage`, `ttl (s)`, `pierceCount`, `knockbackForce`.
+- Quy trình thu hồi bộ nhớ: Khi `ttl <= 0` hoặc va chạm hết `pierceCount` -> Gỡ `mesh` khỏi `scene` (hoặc trả về Object Pool) để tránh rò rỉ VRAM.
 
-## 5. ĐẶC TẢ HỆ THỐNG KẺ ĐỊCH & THUẬT TOÁN SPAWN THEO WAVE (ENEMY & SPAWNER SPEC)
-- Bảng thông số chi tiết ít nhất 03 loại Kẻ địch (VD: `Enemy_Chaser`, `Enemy_Shooter/Fast`, `Enemy_Tank/Boss`):
-  + Mỗi loại ghi rõ: Kích thước Hitbox (`px`), Máu (`hp`), Tốc độ (`px/s`), Hành vi AI (`AI Behavior Formula`), Điểm thưởng khi diệt (`scoreValue`), Màu sắc/Hình khối nhận diện.
-- Công thức Spawner & Độ khó tăng dần (Difficulty Curve):
-  + Vị trí spawn: Spawn trên đường tròn bán kính `R` ngoài tầm nhìn hoặc tại các cổng.
-  + Công thức giảm thời gian chờ giữa các lần spawn theo thời gian sống sót `elapsedTime`: `spawnInterval = Math.max(minInterval, baseInterval - elapsedTime * decayRate)`.
-  + Giới hạn số lượng quái tối đa trên màn hình (`MAX_ACTIVE_ENEMIES = 50`) để bảo đảm 60 FPS.
+## 5. ĐẶC TẢ HỆ THỐNG KẺ ĐỊCH & THUẬT TOÁN SPAWN THEO WAVE (ENEMY AI & SPAWNER)
+- Bảng thông số 03 chủng loại Quái (Minion, Elite, Boss/Special):
+  + Mỗi loại quy định rõ: `radius`, `hp`, `speed`, `scoreReward`, `colorHex`, và **Phương trình hành vi AI** (Đuổi thẳng / Giữ khoảng cách bắn đạn / Lao nhanh Telegraph Charge).
+- Công thức Spawner & Đường cong độ khó (Difficulty Scaling):
+  + Công thức khoảng thời gian giữa 2 lần spawn: `spawnInterval = Math.max(MIN_INTERVAL, BASE_INTERVAL - elapsedTime * DECAY_RATE)`.
+  + Tỷ lệ xuất hiện các loại quái theo mốc thời gian (`0-30s`, `30-60s`, `60s+`).
+  + Trần giới hạn quái trên sân: `MAX_ENEMIES = 45`.
 
-## 6. MA TRẬN VA CHẠM & XỬ LÝ SÁT THƯƠNG (COLLISION MATRIX & DAMAGE RESOLUTION)
-- Công thức kiểm tra va chạm: Hình tròn - Hình tròn (`Math.hypot(a.x - b.x, a.y - b.y) < a.r + b.r`) hoặc Hình chữ nhật AABB.
-- Quy trình xử lý khi xảy ra va chạm:
-  1. `Bullet vs Enemy`: Trừ máu quái -> Kích hoạt `DamageFlash (0.08s)` -> Đẩy lùi nhẹ (`Knockback`) -> Nếu `enemy.hp <= 0` thì sinh hạt nổ, cộng điểm, rơi vật phẩm, xóa quái.
-  2. `Enemy/Hazard vs Player`: Kiểm tra `if (player.iFrameTimer <= 0)` -> Trừ máu Player -> Gán `player.iFrameTimer = 1.0s` (nhấp nháy nhân vật) -> Kích hoạt `HitStop` & `ScreenShake` mạnh -> Nếu `player.hp <= 0` chuyển sang `STATE_GAMEOVER`.
-  3. `Player vs Collectible`: Cộng hiệu ứng/điểm -> Phát âm thanh -> Xóa vật phẩm.
+## 6. MA TRẬN VA CHẠM 3D & GIẢI QUYẾT SÁT THƯƠNG (COLLISION & DAMAGE MATRIX)
+- Kiểm tra khoảng cách hình cầu/hình trụ trên mặt phẳng `XZ`: `Math.hypot(a.x - b.x, a.z - b.z) < (a.radius + b.radius)`.
+- Chuỗi sự kiện chính xác khi va chạm:
+  + `Projectile vs Enemy`: Trừ `enemy.hp` -> Đổi `material.emissive.setHex(0xffffff)` trong `0.07s` -> Áp dụng vector đẩy lùi `knockback` -> Nếu `enemy.hp <= 0`: gọi nổ hạt 3D, cộng điểm, xóa quái.
+  + `Enemy/EnemyBullet vs Player`: Kiểm tra `player.iFrameTimer <= 0` -> Trừ `player.hp` -> Đặt `iFrameTimer = 1.0s` -> Kích hoạt `HitStop(0.1s)` & `CameraShake(0.4, 0.25s)` -> Nếu `player.hp <= 0` chuyển sang `GAMEOVER`.
+  + `Player vs Collectible`: Nhận buff/điểm -> Phát âm thanh -> Thu hồi vật phẩm.
 
-## 7. CÔNG THỨC TÍNH ĐIỂM, COMBO & ĐIỀU KIỆN THẮNG/THUA (SCORING & WIN/LOSE RULES)
-- Công thức tính điểm: `Score += basePoints * comboMultiplier`.
-- Quy tắc tăng và mất `comboMultiplier` (Ví dụ: Tăng khi tiêu diệt liên tiếp trong `3.0s` hoặc duy trì trạng thái Twist; reset về `1x` khi hết giờ hoặc dính sát thương).
-- Điều kiện Thắng (Victory - nếu có) và Điều kiện Thua (Game Over).
+## 7. HỆ THỐNG ĐIỂM SỐ, COMBO & LƯU KỶ LỤC (SCORING & REPLAYABILITY)
+- Phương trình tính điểm: `score += Math.round(baseScore * comboMultiplier * twistBonusMultiplier)`.
+- Quy tắc tăng `comboMultiplier` và bộ đếm thời gian duy trì Combo (`comboDecayTimer = 3.5s`).
 
-## 8. BẢNG ĐẶC TẢ HIỆU ỨNG "JUICE" & ÂM THANH SYNTH (GAME FEEL TRIGGER TABLE)
-Liệt kê chính xác thông số gọi hàm cho từng sự kiện:
-- Khi Bắn / Tấn công: `ScreenShake(intensity, duration)`, `Particle(count, speed, color)`, `WebAudioSynth(freqStart, freqEnd, waveType, duration)`.
-- Khi Đánh trúng Quái: `HitStop(0.03s)`, `DamageFlash(white, 0.08s)`, `FloatingText("-DMG")`.
-- Khi Quái chết: `ScreenShake`, `ParticleExplosion(15-20 hạt)`, `Sound(explosion)`.
-- Khi Player trúng đòn / Chết: `HitStop(0.12s)`, `ScreenShake(mạnh)`, `ScreenFlash(red)`.
+## 8. BẢNG THÔNG SỐ GAME FEEL 3D & WEB AUDIO SYNTH (JUICE SPECIFICATION TABLE)
+Bảng ánh xạ từng sự kiện (`OnShoot`, `OnHitEnemy`, `OnKillEnemy`, `OnPlayerDamaged`, `OnTwistActivate`, `OnPickup`, `OnGameOver`) với:
+- Thông số `CameraShake(intensity, duration)` & `HitStop(freezeSeconds)`.
+- Thông số Hạt nổ 3D `spawnParticles(pos, count, colorHex, speed, size, life)`.
+- Thông số bộ tổng hợp âm thanh `WebAudioSynth(type, startFreq, endFreq, duration, volume)` + File âm thanh CC0 tương ứng trong `Assets/audio/sfx/`.
 
-## 9. ĐẶC TẢ GIAO DIỆN HUD & THÔNG TIN TRÊN MÀN HÌNH (UI & HUD LAYOUT)
-- Góc trên trái: Thanh máu (`HP Bar`) + Trạng thái chỉ số Twist.
-- Góc trên giữa / phải: Điểm hiện tại (`SCORE`), Hệ số (`COMBO xN`), Kỷ lục (`BEST`).
-- Góc dưới màn hình: Dòng nhắc phím điều khiển luôn hiển thị rõ ràng (`[WASD] Move | [Mouse] Aim/Shoot | [Space] Twist/Dash | [R] Restart`).
+## 9. ĐẶC TẢ LỚP PHỦ GIAO DIỆN HTML5/CSS3 HUD (DOM OVERLAY BINDINGS)
+- Danh sách chính xác các phần tử DOM cần có và ID chuẩn: `#hudContainer`, `#hpBarFill`, `#twistBarFill`, `#scoreValue`, `#comboBadge`, `#highScoreValue`, `#controlsHint`, `#menuOverlay`, `#gameOverOverlay`.
 ```
+</output_contract>
 ```

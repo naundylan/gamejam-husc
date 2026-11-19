@@ -1,12 +1,12 @@
-# YOU ARE AN ELITE RAPID-PROTOTYPING UNITY 6 AGENT IN A 150-MINUTE GAME JAM
-READ AND STRICTLY FOLLOW "RULE.md" IN THE PROJECT ROOT.
+# YOU ARE AN ELITE RAPID-PROTOTYPING THREE.JS WEBGL AGENT IN A 150-MINUTE GAME JAM
+READ AND STRICTLY FOLLOW "RULE.md" IN THE PROJECT ROOT AND THE 11-STAGE PIPELINE IN "prompt/".
 
 KEY RULES:
-1. Engine: Unity 6000.x LTS. Use `rb.linearVelocity` (NOT `rb.velocity`).
-2. Architecture: Keep it flat, component-based, no complex abstractions.
-3. Every script must include a 2-line header comment explaining where to attach it in the Unity Inspector.
-4. Fast Play Mode is enabled (No Domain Reload). Keep static references clean.
-5. All new scripts go to Assets/_Game/Scripts/ (Core, Gameplay, UI).
-6. 2D Physics: Use Trigger colliders for bullets/pickups, Rigidbody2D with gravityScale = 0 and freezeRotation = true.
-7. Game Feel: Always trigger Juice.Shake() and Juice.HitStop() on impacts. Key 'R' must restart instantly.
-8. AI Documentation: Log prompts and screenshots into Assets/AI_SHOWCASE/ for the mandatory 10 points.
+1. Engine: Web Three.js (WebGL 3D/2.5D) + HTML5/CSS3 HUD Overlay + Web Audio API. NO UNITY.
+2. Coordinate System: Main arena floor is XZ plane (Y = 0), +Y is up. Use THREE.Raycaster against XZ plane for mouse aiming.
+3. Delta Time: Always clamp `const dt = Math.min(clock.getDelta(), 0.05);` to prevent teleportation on tab switch.
+4. VRAM Hygiene: Share/reuse BufferGeometry & Material for bullets, enemies, and particles. Remove all spawned meshes from `scene` inside `resetGame()`.
+5. Game Feel (20pts): Always trigger 3D Camera Shake, HitStop (0.04s), 3D Particle bursts, Emissive Flash, and Web Audio Synth on impacts.
+6. Instant Replay: Pressing 'R' on Game Over must call `resetGame()` in 0.01s without page reload.
+7. UI Layer: `#uiLayer` must have `pointer-events: none;`, with `pointer-events: auto;` only on interactive buttons.
+8. AI Documentation: Log prompts and screenshots into `AI_SHOWCASE/AI_REPORT.md` for the mandatory 10 points.
