@@ -107,19 +107,19 @@ export function getStageLayout(stageIndex) {
       };
 
     case 3:
-      // Màn 3 — Biển Mây Bão [0, 320] — Địa hình Mây trắng xám & Cột khe gai cho Cáo [4] Dash xuyên qua
+      // Màn 3 — Biển Mây Bão [0, 320] — Địa hình Mây bão âm u & Cột khe gai cho Cáo [4] Dash xuyên qua
       return {
         spawn: { x: 3.0, y: 1.0 },
         platforms: [
-          { x1: -2, x2: 52, topY: 0, h: 2.5, color: 0x475569, topColor: 0xe2e8f0 },
-          { x1: 55, x2: 67, topY: 2.0, h: 0.9, color: 0x64748b, topColor: 0xf1f5f9 },
-          { x1: 70, x2: 82, topY: 3.5, h: 0.9, color: 0x64748b, topColor: 0xf1f5f9 },
-          { x1: 85, x2: 98, topY: 4.8, h: 0.9, color: 0x64748b, topColor: 0xf1f5f9 },
-          { x1: 102, x2: 180, topY: 0, h: 2.5, color: 0x475569, topColor: 0xe2e8f0 },
-          { x1: 183, x2: 196, topY: 2.1, h: 0.9, color: 0x64748b, topColor: 0xf1f5f9 },
-          { x1: 200, x2: 214, topY: 3.8, h: 0.9, color: 0x64748b, topColor: 0xf1f5f9 },
-          { x1: 218, x2: 232, topY: 2.1, h: 0.9, color: 0x64748b, topColor: 0xf1f5f9 },
-          { x1: 236, x2: 322, topY: 0, h: 2.5, color: 0x475569, topColor: 0xe2e8f0 },
+          { x1: -2, x2: 52, topY: 0, h: 2.2, color: 0x334155, topColor: 0x64748b },
+          { x1: 55, x2: 67, topY: 2.0, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 70, x2: 82, topY: 3.5, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 85, x2: 98, topY: 4.8, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 102, x2: 180, topY: 0, h: 2.2, color: 0x334155, topColor: 0x64748b },
+          { x1: 183, x2: 196, topY: 2.1, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 200, x2: 214, topY: 3.8, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 218, x2: 232, topY: 2.1, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 236, x2: 322, topY: 0, h: 2.2, color: 0x334155, topColor: 0x64748b },
         ],
         enemies: [
           { type: 'minion', x: 18, y: 0.7, patrolMinX: 10, patrolMaxX: 25 },
@@ -152,14 +152,14 @@ export function getStageLayout(stageIndex) {
       return {
         spawn: { x: 3.0, y: 1.0 },
         platforms: [
-          { x1: -2, x2: 46, topY: 0, h: 2.2, color: 0x64748b, topColor: 0xf1f5f9 },
+          { x1: -2, x2: 46, topY: 0, h: 2.0, color: 0x334155, topColor: 0x64748b },
           // Sparse small cloud perches across the sky for resting / Cóc recharge
-          { x1: 92, x2: 102, topY: 3.5, h: 0.9, color: 0x64748b, topColor: 0xf8fafc },
-          { x1: 162, x2: 172, topY: 4.2, h: 0.9, color: 0x64748b, topColor: 0xf8fafc },
-          { x1: 232, x2: 242, topY: 3.8, h: 0.9, color: 0x64748b, topColor: 0xf8fafc },
-          { x1: 296, x2: 306, topY: 4.0, h: 0.9, color: 0x64748b, topColor: 0xf8fafc },
+          { x1: 92, x2: 102, topY: 3.5, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 162, x2: 172, topY: 4.2, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 232, x2: 242, topY: 3.8, h: 1.0, color: 0x334155, topColor: 0x64748b },
+          { x1: 296, x2: 306, topY: 4.0, h: 1.0, color: 0x334155, topColor: 0x64748b },
           // Final cloud platform with Spirit Cage (unlocks Dragon Cutscene)
-          { x1: 342, x2: 362, topY: 0, h: 2.2, color: 0x64748b, topColor: 0xf1f5f9 },
+          { x1: 342, x2: 362, topY: 0, h: 2.0, color: 0x334155, topColor: 0x64748b },
         ],
         enemies: [
           { type: 'minion', x: 16, y: 0.7, patrolMinX: 10, patrolMaxX: 22 },

@@ -265,28 +265,67 @@ export function createBossMesh() {
 // =========================================================
 export function createDragonMesh() {
   const g = new THREE.Group();
-  const segGeo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
-  const bodyMat = makeMat(0xfacc15, { emissive: 0xfacc15, emissiveIntensity: 0.75 });
-  const headMat = makeMat(0xfef08a, { emissive: 0xfacc15, emissiveIntensity: 0.95 });
-  const hornMat = makeMat(0xef4444, { emissive: 0xdc2626, emissiveIntensity: 0.5 });
+  const segGeo = new THREE.BoxGeometry(0.95, 0.85, 0.85);
+  const goldMat = makeMat(0xfacc15, { emissive: 0xeab308, emissiveIntensity: 0.65 });
+  const bellyMat = makeMat(0xfef08a, { emissive: 0xfde047, emissiveIntensity: 0.45 });
+  const headMat = makeMat(0xfde047, { emissive: 0xfacc15, emissiveIntensity: 0.85 });
+  const finMat = makeMat(0xef4444, { emissive: 0xdc2626, emissiveIntensity: 0.55 });
+  const cyanMat = makeMat(0x22d3ee, { emissive: 0x06b6d4, emissiveIntensity: 0.85 });
 
   const segments = [];
-  for (let i = 0; i < 15; i++) {
-    const seg = new THREE.Mesh(segGeo, i === 0 ? headMat : bodyMat);
-    const scale = i === 0 ? 1.35 : Math.max(0.45, 1.05 - i * 0.04);
-    seg.scale.setScalar(scale);
-    seg.castShadow = true;
+  const totalSegs = 22;
+  for (let i = 0; i < totalSegs; i++) {
+    const seg = new THREE.Group();
+    const scale = i === 0 ? 1.25 : Math.max(0.38, 1.05 - i * 0.03);
+
     if (i === 0) {
-      // Horns & whiskers
-      addBox(seg, 0.22, 0.6, 0.22, hornMat, -0.25, 0.7, 0.32, 0, 0, 0.3);
-      addBox(seg, 0.22, 0.6, 0.22, hornMat, -0.25, 0.7, -0.32, 0, 0, 0.3);
+      // Sculpted Dragon Head: cranium, upper snout, lower jaw, glowing eyes
+      addBox(seg, 1.1, 0.85, 0.95, headMat, 0, 0.05, 0);
+      addBox(seg, 0.75, 0.42, 0.68, headMat, 0.72, 0.08, 0); // Upper snout
+      addBox(seg, 0.68, 0.22, 0.56, bellyMat, 0.65, -0.26, 0); // Lower jaw
+      // Glowing cyan eyes
+      addBox(seg, 0.22, 0.20, 0.16, cyanMat, 0.35, 0.24, 0.46);
+      addBox(seg, 0.22, 0.20, 0.16, cyanMat, 0.35, 0.24, -0.46);
+      // Branched crimson-gold antlers
+      addBox(seg, 0.18, 0.85, 0.18, finMat, -0.35, 0.65, 0.32, 0, 0, 0.45);
+      addBox(seg, 0.14, 0.45, 0.14, goldMat, -0.55, 0.88, 0.36, 0, 0, 0.15);
+      addBox(seg, 0.18, 0.85, 0.18, finMat, -0.35, 0.65, -0.32, 0, 0, 0.45);
+      addBox(seg, 0.14, 0.45, 0.14, goldMat, -0.55, 0.88, -0.36, 0, 0, 0.15);
+      // Flowing whiskers
+      addBox(seg, 0.95, 0.08, 0.08, cyanMat, 0.65, -0.05, 0.48, 0, -0.35, -0.2);
+      addBox(seg, 0.95, 0.08, 0.08, cyanMat, 0.65, -0.05, -0.48, 0, 0.35, -0.2);
+      // Glowing Dragon Pearl floating ahead of snout
+      const pearl = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 12), cyanMat);
+      pearl.position.set(1.55, 0.15, 0);
+      seg.add(pearl);
+    } else {
+      const body = new THREE.Mesh(segGeo, goldMat);
+      body.castShadow = true;
+      seg.add(body);
+      // Golden underbelly
+      addBox(seg, 0.88, 0.24, 0.72, bellyMat, 0, -0.42, 0);
+      // Dorsal spine fin
+      addBox(seg, 0.45, 0.48, 0.14, finMat, 0, 0.56, 0, 0, 0, 0.25);
+
+      // Dragon claws on segments 4 and 12
+      if (i === 4 || i === 12) {
+        addBox(seg, 0.28, 0.55, 0.24, finMat, 0.1, -0.55, 0.45, 0.2, 0, -0.2);
+        addBox(seg, 0.28, 0.55, 0.24, finMat, 0.1, -0.55, -0.45, -0.2, 0, -0.2);
+      }
+      // Tail fan on final segment
+      if (i === totalSegs - 1) {
+        addBox(seg, 1.3, 0.9, 0.18, finMat, -0.7, 0.15, 0, 0, 0, -0.25);
+        addBox(seg, 1.1, 0.6, 0.18, cyanMat, -0.8, -0.15, 0, 0, 0, 0.25);
+      }
     }
+
+    seg.scale.setScalar(scale);
     g.add(seg);
     segments.push(seg);
   }
 
-  const light1 = new THREE.PointLight(0xfacc15, 2.5, 12.0);
-  const light2 = new THREE.PointLight(0xfacc15, 2.5, 12.0);
+  const light1 = new THREE.PointLight(0xfacc15, 2.8, 14.0);
+  const light2 = new THREE.PointLight(0x22d3ee, 2.2, 14.0);
   g.add(light1, light2);
 
   g.userData.segments = segments;
@@ -377,12 +416,94 @@ export function createSpikeGateMesh(w, gapBottomY = 0, gapTopY = 2.2) {
   return g;
 }
 
-export function createPlatformMesh(w, h, colorHex = 0x334155, topColorHex = 0x475569) {
+export function createPlatformMesh(w, h, colorHex = 0x334155, topColorHex = 0x475569, biome = 'stone') {
   const g = new THREE.Group();
-  const bodyMat = makeMat(colorHex, { roughness: 0.8 });
-  const topMat = makeMat(topColorHex, { roughness: 0.6 });
+  const bodyMat = makeMat(colorHex, { roughness: biome === 'cloud' ? 0.95 : 0.8 });
+  const topMat = makeMat(topColorHex, {
+    roughness: biome === 'palace' ? 0.35 : 0.65,
+    metalness: biome === 'palace' ? 0.45 : 0.08,
+    emissive: biome === 'palace' ? 0xca8a04 : 0x000000,
+    emissiveIntensity: biome === 'palace' ? 0.25 : 0,
+  });
+
+  // Base platform body & top cap
   addBox(g, w, h, 2.8, bodyMat, 0, 0, 0);
-  addBox(g, w + 0.08, 0.24, 2.9, topMat, 0, h * 0.5 - 0.1, 0);
+  addBox(g, w + 0.10, 0.26, 2.92, topMat, 0, h * 0.5 - 0.11, 0);
+
+  const topY = h * 0.5;
+  const startX = -w * 0.5 + 1.5;
+  const endX = w * 0.5 - 1.5;
+
+  if (biome === 'mud') {
+    // Cracked mud blocks, pebbles, and dry pond reeds on back edge
+    const crackMat = makeMat(0x451a03, { roughness: 0.95 });
+    const pebbleMat = makeMat(0xa16207, { roughness: 0.85 });
+    const reedMat = makeMat(0x65a30d, { roughness: 0.8 });
+    for (let x = startX; x <= endX; x += 3.2) {
+      addBox(g, 1.3, 0.12, 0.12, crackMat, x, topY - 0.55, 1.42);
+      addBox(g, 0.36, 0.18, 0.36, pebbleMat, x + 0.8, topY + 0.06, -1.05);
+      if (Math.abs(Math.round(x)) % 2 === 0) {
+        addBox(g, 0.14, 0.65, 0.14, reedMat, x - 0.5, topY + 0.30, -1.18, 0, 0, 0.12);
+        addBox(g, 0.12, 0.50, 0.12, reedMat, x - 0.32, topY + 0.22, -1.15, 0, 0, -0.15);
+      }
+    }
+  } else if (biome === 'stone') {
+    // Canyon stone strata, chiseled brick reliefs & mineral veins
+    const darkStone = makeMat(0x292524, { roughness: 0.9 });
+    const lightStone = makeMat(0xd6d3d1, { roughness: 0.75 });
+    for (let x = startX; x <= endX; x += 3.5) {
+      addBox(g, 2.2, 0.32, 0.16, darkStone, x, topY - 0.65, 1.42);
+      if (h > 1.8) {
+        addBox(g, 1.6, 0.28, 0.14, lightStone, x + 0.7, topY - 1.35, 1.42);
+      }
+      addBox(g, 0.55, 0.22, 0.45, lightStone, x - 0.8, topY + 0.06, -1.12);
+    }
+  } else if (biome === 'forest') {
+    // Hanging jungle vines, lush moss overhangs & glowing forest mushrooms
+    const mossMat = makeMat(0x16a34a, { roughness: 0.7 });
+    const vineMat = makeMat(0x15803d, { roughness: 0.75 });
+    const glowShroom = makeMat(0x4ade80, { emissive: 0x22c55e, emissiveIntensity: 0.6 });
+    for (let x = startX; x <= endX; x += 2.8) {
+      const vineH = 0.55 + (Math.abs(Math.sin(x * 1.7)) * 0.65);
+      addBox(g, 0.18, vineH, 0.16, vineMat, x, topY - 0.18 - vineH * 0.5, 1.44);
+      addBox(g, 0.95, 0.16, 0.22, mossMat, x + 0.4, topY - 0.22, 1.44);
+      if (Math.abs(Math.round(x)) % 3 === 0) {
+        addBox(g, 0.26, 0.22, 0.26, glowShroom, x - 0.4, topY + 0.10, -1.15);
+      }
+    }
+  } else if (biome === 'cloud') {
+    // Gloomy, billowing storm-cloud clusters covering the platform edges and underbelly
+    const puffDark = makeMat(0x334155, { roughness: 0.95 });
+    const puffMid = makeMat(0x475569, { roughness: 0.95 });
+    const puffTop = makeMat(0x64748b, { roughness: 0.9 });
+    const stormGlow = makeMat(0x38bdf8, { emissive: 0x0284c7, emissiveIntensity: 0.35, transparent: true, opacity: 0.55 });
+
+    for (let x = -w * 0.5 + 0.9; x <= w * 0.5 - 0.9; x += 1.65) {
+      const seed = Math.abs(Math.sin(x * 1.37));
+      const puffW = 2.0 + seed * 1.1;
+      const puffH = 0.75 + Math.abs(Math.cos(x * 0.9)) * 0.55;
+      // Billowing front cloud puffs
+      addBox(g, puffW, puffH, 0.95, puffMid, x, topY - 0.22 - seed * 0.25, 1.25);
+      // Darker puffy underbelly
+      addBox(g, puffW * 0.95, puffH * 0.9, 1.3, puffDark, x + 0.35, -h * 0.5 + 0.05, 0.45);
+      // Soft top-back cloud rim
+      addBox(g, puffW * 0.85, 0.42, 0.85, puffTop, x - 0.25, topY - 0.06, -1.15);
+      // Occasional faint lightning charge inside storm cloud
+      if (Math.abs(Math.round(x * 2)) % 5 === 0) {
+        addBox(g, 0.75, 0.10, 0.14, stormGlow, x, topY - 0.42, 1.72);
+      }
+    }
+  } else if (biome === 'palace') {
+    // Jade Palace golden trim, crimson reliefs & glowing dragon tiles
+    const goldTrim = makeMat(0xfacc15, { emissive: 0xeab308, emissiveIntensity: 0.5, metalness: 0.6 });
+    const crimson = makeMat(0x991b1b, { roughness: 0.5 });
+    for (let x = startX; x <= endX; x += 2.5) {
+      addBox(g, 0.45, h * 0.72, 0.18, crimson, x, 0, 1.44);
+      addBox(g, 0.65, 0.18, 0.22, goldTrim, x, topY - 0.38, 1.45);
+      addBox(g, 0.55, 0.18, 0.22, goldTrim, x, -h * 0.5 + 0.35, 1.45);
+    }
+  }
+
   return g;
 }
 

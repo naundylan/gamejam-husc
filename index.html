@@ -19,6 +19,8 @@
       color: #f8fafc;
     }
 
+    .hidden { display: none !important; }
+
     #gameCanvas {
       display: block;
       width: 100vw;
@@ -366,6 +368,7 @@
         <div class="hud-box" id="stageBanner">TUTORIAL: BỜ AO KHÔ HẠN</div>
         <div id="weatherBadge" style="font-size:12px; font-weight:700; color:#7dd3fc; background:rgba(12,16,32,0.78); border:1px solid rgba(56,189,248,0.4); border-radius:999px; padding:3px 12px; text-shadow:0 1px 4px #000;">🌦️ MƯA PHÙN NHẸ — CẤP 1</div>
         <div id="devBadge" class="hidden" style="font-size:11px; font-weight:800; color:#fde047; background:rgba(161,98,7,0.85); border:1px solid #facc15; border-radius:999px; padding:2px 10px;">🛠️ DEV MODE: BAY [W/S] + BẤT TỬ</div>
+        <div id="devilBadge" class="hidden" style="font-size:11px; font-weight:800; color:#fecaca; background:rgba(153,27,27,0.9); border:1px solid #ef4444; border-radius:999px; padding:2px 10px; box-shadow:0 0 12px rgba(239,68,68,0.6);">😈 DEVIL MODE: ĐỊA HÌNH TROLL!</div>
         <div class="seals-row">
           <div class="seal-slot" id="sealSlot1" title="Ấn Ký Hổ">🐯</div>
           <div class="seal-slot" id="sealSlot2" title="Ấn Ký Gấu">🐻</div>
@@ -420,6 +423,10 @@
       <div class="form-card"><strong style="color:#facc15">[5] Ong</strong>Giữ [W/SPACE] để bay, bắn nọc hạ Mây Đen; trúng 1 đòn văng về Cóc.</div>
     </div>
     <p id="menuBest" class="subtitle" style="margin-bottom: 10px; color: #facc15;"></p>
+    <div id="difficultySelector" style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
+      <button id="diffNormalBtn" style="pointer-events:auto; background:rgba(34,197,94,0.22); color:#4ade80; border:2px solid #22c55e; border-radius:8px; padding:7px 16px; font-size:13px; font-weight:800; cursor:pointer;">🌿 ĐỘ KHÓ: THƯỜNG</button>
+      <button id="diffDevilBtn" style="pointer-events:auto; background:rgba(30,41,59,0.85); color:#fca5a5; border:2px solid rgba(239,68,68,0.45); border-radius:8px; padding:7px 16px; font-size:13px; font-weight:800; cursor:pointer;">😈 ĐỘ KHÓ: DEVIL (TROLL)</button>
+    </div>
     <div id="stageSelectGrid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px; max-width:740px; margin-bottom:16px;">
       <button class="stage-select-btn" data-stage="0" style="pointer-events:auto; background:rgba(30,41,59,0.9); color:#f8fafc; border:1.5px solid #22c55e; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer;">0. Tutorial: Bờ Ao</button>
       <button class="stage-select-btn" data-stage="1" style="pointer-events:auto; background:rgba(30,41,59,0.9); color:#f8fafc; border:1.5px solid #f97316; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer;">1. Hẻm Núi Đá</button>

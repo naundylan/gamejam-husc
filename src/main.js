@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {
   GameState,
+  DifficultyMode,
   GRAVITY,
   MAX_FALL_SPEED,
   MAX_RAIN,
@@ -88,6 +89,9 @@ const lightningFlashOverlay = document.getElementById('lightningFlashOverlay');
 const weatherBadgeEl = document.getElementById('weatherBadge');
 const devModeBtn = document.getElementById('devModeBtn');
 const devBadgeEl = document.getElementById('devBadge');
+const diffNormalBtn = document.getElementById('diffNormalBtn');
+const diffDevilBtn = document.getElementById('diffDevilBtn');
+const devilBadgeEl = document.getElementById('devilBadge');
 
 // =========================================================
 // THREE.JS RENDERER, SCENE, CAMERA & LIGHTS
@@ -323,6 +327,7 @@ let lightningFlash = 0;
 let cutsceneTimer = 0;
 let pendingNextStage = 0;
 let devMode = false;
+let difficultyMode = DifficultyMode.NORMAL;
 let elapsed = 0;
 
 const playerStats = {
@@ -364,6 +369,7 @@ let enemies = [];
 let rocks = [];
 let spikes = [];
 let spikeGates = [];
+let trollTraps = [];
 let cage = null;
 let boss = null;
 let bossLightningPillars = [];
@@ -517,6 +523,18 @@ function toggleDevMode() {
   devModeBtn.style.background = devMode ? 'rgba(161,98,7,0.9)' : 'rgba(30,41,59,0.85)';
   devBadgeEl.classList.toggle('hidden', !devMode);
 }
+function setDifficultyMode(mode) {
+  difficultyMode = mode;
+  const isDevil = mode === DifficultyMode.DEVIL;
+  diffNormalBtn.style.background = isDevil ? 'rgba(30,41,59,0.85)' : 'rgba(34,197,94,0.22)';
+  diffNormalBtn.style.borderColor = isDevil ? 'rgba(34,197,94,0.35)' : '#22c55e';
+  diffDevilBtn.style.background = isDevil ? 'rgba(220,38,38,0.35)' : 'rgba(30,41,59,0.85)';
+  diffDevilBtn.style.borderColor = isDevil ? '#ef4444' : 'rgba(239,68,68,0.45)';
+  devilBadgeEl.classList.toggle('hidden', !isDevil);
+}
+diffNormalBtn.addEventListener('click', () => setDifficultyMode(DifficultyMode.NORMAL));
+diffDevilBtn.addEventListener('click', () => setDifficultyMode(DifficultyMode.DEVIL));
+
 const pauseMenuBtn = document.getElementById('pauseMenuBtn');
 muteBtn.addEventListener('click', toggleMute);
 devModeBtn.addEventListener('click', toggleDevMode);
@@ -610,8 +628,8 @@ function closeUpgradePopup() {
   if (pendingNextStage === 5) {
     clearStageObjects();
     gameState = GameState.CUTSCENE_DRAGON;
-    cutsceneTimer = 4.5;
-    ambientLight.intensity = 0.25;
+    cutsceneTimer = 7.0;
+    ambientLight.intensity = 0.45;
     player.mesh.visible = false;
     scene.background = specialBgTextures.dragonSummon || skyColor;
     parallax1.visible = false;
@@ -746,6 +764,7 @@ function clearStageObjects() {
   rocks = [];
   spikes = [];
   spikeGates = [];
+  trollTraps = [];
   healthDrops = [];
   cage = null;
   boss = null;
@@ -761,7 +780,9 @@ function loadStage(idx) {
   stageIndex = idx;
   const weather = STAGE_WEATHER[idx];
   const layout = getStageLayout(idx);
+  const isDevil = difficultyMode === DifficultyMode.DEVIL;
 
+  devilBadgeEl.classList.toggle('hidden', !isDevil);
   skyColor.setHex(weather.skyHex);
   scene.background = stageBgTextures[idx] || skyColor;
   const showParallax = !STAGE_BG_PATHS[idx];
@@ -779,14 +800,84 @@ function loadStage(idx) {
   lightningFlashOverlay.style.opacity = '0';
 
   // Platforms
-  for (const pf of layout.platforms) {
+  const stageBiomes = ['mud', 'stone', 'forest', 'cloud', 'cloud', 'palace'];
+  const biome = stageBiomes[idx] || 'stone';
+  layout.platforms.forEach((pf, pIdx) => {
     const w = pf.x2 - pf.x1;
     const cx = (pf.x1 + pf.x2) * 0.5;
     const cy = pf.topY - pf.h * 0.5;
-    const mesh = createPlatformMesh(w, pf.h, pf.color, pf.topColor);
+    const mesh = createPlatformMesh(w, pf.h, pf.color, pf.topColor, biome);
     mesh.position.set(cx, cy, 0);
     stageGroup.add(mesh);
-    platforms.push({ x1: pf.x1, x2: pf.x2, topY: pf.topY, h: pf.h, mesh });
+
+    const pfObj = {
+      x1: pf.x1,
+      x2: pf.x2,
+      topY: pf.topY,
+      origTopY: pf.topY,
+      origX1: pf.x1,
+      origX2: pf.x2,
+      origCx: cx,
+      origCy: cy,
+      h: pf.h,
+      mesh,
+      trollType: null,
+      trollState: 'idle', // 'idle' | 'shake' | 'active' | 'done'
+      trollTimer: 0,
+      slideDir: pIdx % 2 === 0 ? 1 : -1,
+    };
+
+    // Level Devil Troll Platforms!
+    if (isDevil && pIdx > 0) {
+      if (idx === 5 && pf.topY > 0) {
+        // Boss arena side platforms collapse & respawn
+        pfObj.trollType = 'fall_respawn';
+      } else if (pf.topY > 0 && pIdx % 2 === 1) {
+        pfObj.trollType = 'fall';
+      } else if (pf.topY > 0 && pIdx % 2 === 0) {
+        pfObj.trollType = 'slide';
+      }
+    }
+    platforms.push(pfObj);
+  });
+
+  // Level Devil Pop-up Surprise Spikes!
+  if (isDevil && idx < 5) {
+    const step = idx === 4 ? 65 : 42;
+    for (let sx = 24; sx < weather.maxX - 18; sx += step) {
+      // Place popup spike on solid ground where a platform exists at y=0
+      const onGround = layout.platforms.some((p) => p.topY === 0 && sx > p.x1 + 3 && sx < p.x2 - 3);
+      if (onGround) {
+        const sMesh = createSpikeMesh(2.4);
+        sMesh.position.set(sx, -0.75, 0);
+        stageGroup.add(sMesh);
+        const sObj = { pos: new THREE.Vector3(sx, -0.75, 0), w: 2.4, h: 0.6, mesh: sMesh };
+        spikes.push(sObj);
+        trollTraps.push({
+          type: 'popupSpike',
+          x: sx,
+          targetY: 0.25,
+          triggered: false,
+          spikeObj: sObj,
+        });
+      }
+    }
+    // Extra sneaky pop-up spike right before the cage!
+    if (layout.cage) {
+      const cx = layout.cage.x - 4.2;
+      const sMesh = createSpikeMesh(2.0);
+      sMesh.position.set(cx, -0.75, 0);
+      stageGroup.add(sMesh);
+      const sObj = { pos: new THREE.Vector3(cx, -0.75, 0), w: 2.0, h: 0.6, mesh: sMesh };
+      spikes.push(sObj);
+      trollTraps.push({
+        type: 'popupSpike',
+        x: cx,
+        targetY: 0.25,
+        triggered: false,
+        spikeObj: sObj,
+      });
+    }
   }
 
   // Enemies
@@ -1154,9 +1245,9 @@ function updateTwistSpirit(dt) {
 
   if (player.formId !== 1 && player.spiritEnergy <= 0.0) {
     switchForm(1, false);
-    player.stunTimer = 1.50;
     twistMultiplier = 1;
     triggerShake(0.25, 0.20);
+    spawn3DParticles(player.pos, 12, 0x94a3b8, 6.0, 0.20, 0.40);
     WebAudioSynth.playStun();
   }
 
@@ -1933,6 +2024,81 @@ function updateHealthDrops(dt) {
   }
 }
 
+function updateTrollTraps(dt) {
+  if (difficultyMode !== DifficultyMode.DEVIL) return;
+  const pCfg = FORM_CONFIGS[player.formId];
+  const pBottom = player.pos.y - pCfg.h * 0.5;
+
+  for (const pf of platforms) {
+    if (!pf.trollType) continue;
+
+    if (pf.trollType === 'fall' || pf.trollType === 'fall_respawn') {
+      if (pf.trollState === 'idle') {
+        const onTop =
+          player.isGrounded &&
+          player.pos.x + pCfg.w * 0.4 > pf.x1 &&
+          player.pos.x - pCfg.w * 0.4 < pf.x2 &&
+          Math.abs(pBottom - pf.topY) < 0.35;
+        if (onTop) {
+          pf.trollState = 'shake';
+          pf.trollTimer = 0.24;
+          WebAudioSynth.playHitEnemy();
+        }
+      } else if (pf.trollState === 'shake') {
+        pf.trollTimer -= dt;
+        pf.mesh.position.x = pf.origCx + (Math.random() - 0.5) * 0.24;
+        if (pf.trollTimer <= 0) {
+          pf.trollState = 'active';
+          pf.trollTimer = 3.5;
+          pf.mesh.position.x = pf.origCx;
+          spawn3DParticles(new THREE.Vector3(pf.origCx, pf.topY, 0), 10, 0xef4444, 5.0, 0.2, 0.4);
+        }
+      } else if (pf.trollState === 'active') {
+        pf.topY -= 16.0 * dt;
+        pf.mesh.position.y -= 16.0 * dt;
+        pf.trollTimer -= dt;
+        if (pf.trollType === 'fall_respawn' && pf.trollTimer <= 0) {
+          pf.topY = pf.origTopY;
+          pf.mesh.position.set(pf.origCx, pf.origCy, 0);
+          pf.trollState = 'idle';
+        }
+      }
+    } else if (pf.trollType === 'slide') {
+      if (pf.trollState === 'idle') {
+        if (Math.abs(player.pos.x - pf.origCx) < (pf.x2 - pf.x1) * 0.5 + 2.0 && player.pos.y > pf.topY - 1.5) {
+          pf.trollState = 'active';
+          pf.trollTimer = 4.2; // distance to slide
+          WebAudioSynth.playJump();
+        }
+      } else if (pf.trollState === 'active') {
+        const step = Math.min(pf.trollTimer, 18.0 * dt);
+        const dx = step * pf.slideDir;
+        pf.x1 += dx;
+        pf.x2 += dx;
+        pf.mesh.position.x += dx;
+        pf.trollTimer -= step;
+        if (pf.trollTimer <= 0) {
+          pf.trollState = 'done';
+        }
+      }
+    }
+  }
+
+  for (const trap of trollTraps) {
+    if (trap.type === 'popupSpike') {
+      if (!trap.triggered && Math.abs(player.pos.x - trap.x) < 2.8) {
+        trap.triggered = true;
+        spawn3DParticles(new THREE.Vector3(trap.x, 0.2, 0), 10, 0xef4444, 6.0, 0.18, 0.35);
+        WebAudioSynth.playAttack(2);
+      }
+      if (trap.triggered && trap.spikeObj.pos.y < trap.targetY) {
+        trap.spikeObj.pos.y = Math.min(trap.targetY, trap.spikeObj.pos.y + 18.0 * dt);
+        trap.spikeObj.mesh.position.y = trap.spikeObj.pos.y;
+      }
+    }
+  }
+}
+
 function updateWeatherAndFlood(dt) {
   const weather = gameState === GameState.MENU ? STAGE_WEATHER[0] : STAGE_WEATHER[stageIndex];
 
@@ -2118,42 +2284,45 @@ function animate() {
 
   if (gameState === GameState.CUTSCENE_DRAGON) {
     cutsceneTimer -= dt;
-    const progress = 1 - Math.max(0, cutsceneTimer / 4.5);
+    const progress = 1 - Math.max(0, cutsceneTimer / 7.0);
 
     // Animate all 5 animal allies cheering & rising slightly
     for (let i = 0; i < cutsceneAllies.length; i++) {
       const ally = cutsceneAllies[i];
       ally.position.y = -0.4 + Math.abs(Math.sin(elapsed * 5.0 + i * 0.9)) * 0.45;
-      if (progress > 0.65) {
-        ally.position.y += (progress - 0.65) * 14.0;
+      if (progress > 0.72) {
+        ally.position.y += (progress - 0.72) * 16.0;
       }
     }
 
-    if (cutsceneTimer < 2.2) {
+    if (cutsceneTimer < 3.6) {
       dragonSpeakerEl.textContent = '🐉 LONG THẦN:';
       dragonDialogueTextEl.textContent =
         '"Lòng dũng cảm của muôn loài đã thấu trời xanh! Hãy bám chắc, ta sẽ đưa các ngươi vượt mây lên Thiên Đình!"';
     }
 
     if (dragonMesh) {
-      const headX = -11 + progress * 24;
-      const headY = -1 + progress * 10;
-      const headZ = -2 + progress * 1;
+      dragonMesh.position.set(0, 0, 0);
+      const headX = -14 + progress * 30;
+      const headY = -0.5 + Math.sin(progress * Math.PI) * 5.0 + progress * 4.5;
+      const headZ = -1.5 + progress * 1.0;
       const segs = dragonMesh.userData.segments;
       for (let i = 0; i < segs.length; i++) {
+        const phase = elapsed * 5.5 - i * 0.40;
         segs[i].position.set(
-          headX - i * 0.85,
-          headY + Math.sin(elapsed * 6.0 - i * 0.45) * 1.2,
+          headX - i * 0.78,
+          headY + Math.sin(phase) * 1.25,
           headZ
         );
+        segs[i].rotation.z = Math.cos(phase) * 0.24;
       }
       const [l1, l2] = dragonMesh.userData.lights;
-      l1.position.set(headX + Math.cos(elapsed * 4.0) * 2.2, headY + Math.sin(elapsed * 4.0) * 2.2, headZ + 1.5);
-      l2.position.set(headX + Math.cos(-elapsed * 4.0) * 2.2, headY + Math.sin(-elapsed * 4.0) * 2.2, headZ + 1.5);
+      l1.position.set(headX + Math.cos(elapsed * 4.0) * 2.4, headY + Math.sin(elapsed * 4.0) * 2.4, headZ + 1.8);
+      l2.position.set(headX + Math.cos(-elapsed * 4.0) * 2.4, headY + Math.sin(-elapsed * 4.0) * 2.4, headZ + 1.8);
 
       const fxColors = [0xfacc15, 0x38bdf8, 0x4ade80, 0xe879f9];
       const fxCol = fxColors[Math.floor(elapsed * 12) % fxColors.length];
-      spawn3DParticles(new THREE.Vector3(headX, headY, headZ), 5, fxCol, 7.5, 0.28, 0.8);
+      spawn3DParticles(new THREE.Vector3(headX, headY, headZ), 5, fxCol, 7.5, 0.28, 0.85);
       if (Math.random() < 0.08) {
         spawnShockwave(new THREE.Vector3(headX, headY, headZ));
       }
@@ -2276,6 +2445,7 @@ function animate() {
     } else {
       handlePlayerAttack();
       updateTwistSpirit(dt);
+      updateTrollTraps(dt);
       updatePlayerPhysics(dt);
       if (gameState === GameState.PLAYING) {
         updateBoss(dt);

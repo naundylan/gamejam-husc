@@ -9,6 +9,11 @@ export const GameState = Object.freeze({
   GAMEOVER: 'GAMEOVER',
 });
 
+export const DifficultyMode = Object.freeze({
+  NORMAL: 'NORMAL',
+  DEVIL: 'DEVIL',
+});
+
 export const GRAVITY = -32.0;
 export const MAX_FALL_SPEED = -20.0;
 export const MAX_RAIN = 360;
