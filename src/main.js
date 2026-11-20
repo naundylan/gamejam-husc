@@ -86,6 +86,8 @@ const pauseRestartBtn = document.getElementById('pauseRestartBtn');
 const stormOverlay = document.getElementById('stormOverlay');
 const lightningFlashOverlay = document.getElementById('lightningFlashOverlay');
 const weatherBadgeEl = document.getElementById('weatherBadge');
+const devModeBtn = document.getElementById('devModeBtn');
+const devBadgeEl = document.getElementById('devBadge');
 
 // =========================================================
 // THREE.JS RENDERER, SCENE, CAMERA & LIGHTS
@@ -320,6 +322,7 @@ let lightningTimer = 0;
 let lightningFlash = 0;
 let cutsceneTimer = 0;
 let pendingNextStage = 0;
+let devMode = false;
 let elapsed = 0;
 
 const playerStats = {
@@ -407,8 +410,19 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
-  if ((gameState === GameState.GAMEOVER || gameState === GameState.VICTORY || gameState === GameState.PAUSED) && code === 'KeyR' && !wasDown) {
+  if (gameState === GameState.VICTORY && code === 'KeyR' && !wasDown) {
+    returnToMenu();
+    return;
+  }
+
+  if ((gameState === GameState.GAMEOVER || gameState === GameState.PAUSED) && code === 'KeyR' && !wasDown) {
     resetGame();
+    return;
+  }
+
+  if ((code === 'Backquote' || code === 'F2') && !wasDown) {
+    e.preventDefault();
+    toggleDevMode();
     return;
   }
 
@@ -496,16 +510,36 @@ function togglePause() {
     pauseOverlay.classList.add('hidden');
   }
 }
+function toggleDevMode() {
+  devMode = !devMode;
+  devModeBtn.blur();
+  devModeBtn.textContent = devMode ? '🛠️ Dev: ON [`]' : '🛠️ Dev: OFF [`]';
+  devModeBtn.style.background = devMode ? 'rgba(161,98,7,0.9)' : 'rgba(30,41,59,0.85)';
+  devBadgeEl.classList.toggle('hidden', !devMode);
+}
+const pauseMenuBtn = document.getElementById('pauseMenuBtn');
 muteBtn.addEventListener('click', toggleMute);
+devModeBtn.addEventListener('click', toggleDevMode);
 pauseBtn.addEventListener('click', togglePause);
 resumeBtn.addEventListener('click', togglePause);
 pauseRestartBtn.addEventListener('click', () => {
   WebAudioSynth.unlock();
   resetGame();
 });
+pauseMenuBtn.addEventListener('click', () => {
+  WebAudioSynth.unlock();
+  returnToMenu();
+});
+document.querySelectorAll('.stage-select-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    WebAudioSynth.unlock();
+    const stage = Number(btn.dataset.stage || 0);
+    startGame(stage);
+  });
+});
 startBtn.addEventListener('click', () => {
   WebAudioSynth.unlock();
-  startGame();
+  startGame(0);
 });
 restartBtn.addEventListener('click', () => {
   WebAudioSynth.unlock();
@@ -513,7 +547,7 @@ restartBtn.addEventListener('click', () => {
 });
 victoryRestartBtn.addEventListener('click', () => {
   WebAudioSynth.unlock();
-  resetGame();
+  returnToMenu();
 });
 
 function getUpgradeCost(level) {
@@ -884,11 +918,38 @@ function loadStage(idx) {
 // =========================================================
 // START / RESET / ENDGAME
 // =========================================================
-function startGame() {
-  resetGame();
+let selectedStartStage = 0;
+
+function startGame(startStage = 0) {
+  selectedStartStage = startStage;
+  resetGame(startStage);
 }
 
-function resetGame() {
+function returnToMenu() {
+  clearStageObjects();
+  pauseOverlay.classList.add('hidden');
+  victoryOverlay.classList.add('hidden');
+  gameOverOverlay.classList.add('hidden');
+  upgradeOverlay.classList.add('hidden');
+  dragonDialogueOverlay.classList.add('hidden');
+  hudContainer.classList.add('hidden');
+  bossHpContainer.classList.add('hidden');
+  rainbowGroup.visible = false;
+  rainGroup.visible = true;
+  stormOverlay.style.opacity = '0';
+  stormOverlay.style.backdropFilter = 'blur(0px)';
+  lightningFlashOverlay.style.opacity = '0';
+  selectedStartStage = 0;
+  menuBestEl.textContent =
+    highScore > 0
+      ? `Kỷ lục: ${highScore.toLocaleString()} điểm` + (fastestTime > 0 ? ` | Thời gian nhanh nhất: ${fastestTime}s` : '')
+      : 'Chưa có kỷ lục — Hãy là người đầu tiên triệu hồi Long Thần!';
+  gameState = GameState.MENU;
+  menuOverlay.classList.remove('hidden');
+}
+
+function resetGame(startStage = selectedStartStage) {
+  selectedStartStage = startStage;
   score = 0;
   totalRunTime = 0;
   twistMultiplier = 1;
@@ -897,7 +958,15 @@ function resetGame() {
   shakeIntensity = 0;
   lightningFlash = 0;
 
+  // Unlock all forms earned prior to startStage
   player.unlockedForms = [1];
+  for (let s = 0; s < Math.min(startStage, 4); s++) {
+    const fId = STAGE_WEATHER[s].unlockFormId;
+    if (fId && !player.unlockedForms.includes(fId)) {
+      player.unlockedForms.push(fId);
+    }
+  }
+
   playerStats.skillPoints = 0;
   playerStats.atkLevel = 1;
   playerStats.spdLevel = 1;
@@ -924,8 +993,8 @@ function resetGame() {
   player.formId = 1;
   playerPointLight.color.setHex(FORM_CONFIGS[1].colorHex);
 
-  for (const slot of sealSlots) {
-    slot.classList.remove('unlocked');
+  for (let i = 0; i < sealSlots.length; i++) {
+    sealSlots[i].classList.toggle('unlocked', i < startStage);
   }
 
   rainGroup.visible = true;
@@ -943,7 +1012,7 @@ function resetGame() {
   victoryOverlay.classList.add('hidden');
   hudContainer.classList.remove('hidden');
 
-  loadStage(0);
+  loadStage(startStage);
   gameState = GameState.PLAYING;
   updateHUD();
 }
@@ -960,7 +1029,38 @@ function triggerGameOver(reason) {
   WebAudioSynth.playPlayerDamaged();
 }
 
+let victorySeqTimer = 0;
+let victoryBoomTimer = 0;
+
 function triggerVictory() {
+  gameState = GameState.VICTORY_SEQUENCE;
+  victorySeqTimer = 3.2;
+  victoryBoomTimer = 0;
+  bossHpContainer.classList.add('hidden');
+  weatherBadgeEl.textContent = '🌤️ BÃO TAN DẦN — ÔNG TRỜI ĐANG KHUẤT PHỤC!';
+
+  // Clear active hazards during cinematic
+  for (const p of projectilePool) {
+    if (p.active && p.owner === 'enemy') {
+      p.active = false;
+      p.mesh.visible = false;
+    }
+  }
+  for (const pil of bossLightningPillars) {
+    stageGroup.remove(pil.mesh);
+  }
+  bossLightningPillars = [];
+  for (const en of enemies) {
+    spawn3DParticles(en.pos, 10, en.colorHex, 6.0, 0.2, 0.4);
+    stageGroup.remove(en.mesh);
+  }
+  enemies = [];
+
+  triggerShake(0.45, 0.35);
+  WebAudioSynth.playBreakArmor();
+}
+
+function finishVictory() {
   gameState = GameState.VICTORY;
   const timeBonus = Math.max(0, Math.round((150 - totalRunTime) * 50));
   score += 5000 + timeBonus;
@@ -988,12 +1088,11 @@ function triggerVictory() {
   parallax3.visible = false;
   scene.fog.color.setHex(0x38bdf8);
   scene.fog.density = 0.005;
-  ambientLight.intensity = 1.10;
+  ambientLight.intensity = 1.15;
 
-  spawn3DParticles(new THREE.Vector3(0, 6, -1), 200, 0xfacc15, 9.0, 0.25, 2.5, -2.5);
+  spawn3DParticles(new THREE.Vector3(0, 6, -1), 160, 0xfacc15, 9.0, 0.25, 2.5, -2.5);
   WebAudioSynth.playVictory();
 
-  bossHpContainer.classList.add('hidden');
   victoryStatsEl.innerHTML =
     `Tổng điểm: <strong style="color:#facc15">${Math.floor(score).toLocaleString()}</strong><br/>` +
     `Thời gian dừng mưa: <strong>${totalRunTime.toFixed(1)}s</strong> (Kỷ lục: ${fastestTime.toFixed(1)}s)`;
@@ -1199,12 +1298,16 @@ function updatePlayerPhysics(dt) {
       player.vel.x = player.facing * 22.0 * spdMult;
       player.vel.y = 0;
     } else {
-      player.vel.x = dirX * cfg.moveSpeed * spdMult;
+      const baseSpd = devMode ? Math.max(cfg.moveSpeed, 12.0) : cfg.moveSpeed;
+      player.vel.x = dirX * baseSpd * spdMult;
     }
 
     // Jump / Fly
     const jumpHeld = keys['KeyW'] || keys['Space'] || keys['ArrowUp'];
-    if (player.formId === 5) {
+    const downHeld = keys['KeyS'] || keys['ArrowDown'];
+    if (devMode) {
+      player.vel.y = ((jumpHeld ? 1 : 0) - (downHeld ? 1 : 0)) * 10.0;
+    } else if (player.formId === 5) {
       if (jumpHeld) {
         player.vel.y = 6.5;
       } else {
@@ -1218,8 +1321,8 @@ function updatePlayerPhysics(dt) {
     }
   }
 
-  // Gravity (skip during Fox dash or Bee flight)
-  if (!(player.dashTimer > 0 && player.formId === 4) && player.formId !== 5) {
+  // Gravity (skip during Dev Mode, Fox dash, or Bee flight)
+  if (!devMode && !(player.dashTimer > 0 && player.formId === 4) && player.formId !== 5) {
     player.vel.y = Math.max(MAX_FALL_SPEED, player.vel.y + GRAVITY * (cfg.gravityScale || 1.0) * dt);
   }
 
@@ -1231,10 +1334,10 @@ function updatePlayerPhysics(dt) {
   // Stage X bounds
   if (stageIndex === 5) {
     player.pos.x = Math.max(ARENA_BOUNDS.minX + cfg.w * 0.5, Math.min(ARENA_BOUNDS.maxX - cfg.w * 0.5, player.pos.x));
-    player.pos.y = Math.min(ARENA_BOUNDS.maxY, player.pos.y);
+    player.pos.y = Math.min(devMode ? 16.0 : ARENA_BOUNDS.maxY, player.pos.y);
   } else {
     player.pos.x = Math.max(weather.minX + cfg.w * 0.5, Math.min(weather.maxX - cfg.w * 0.5, player.pos.x));
-    player.pos.y = Math.min(11.0, player.pos.y);
+    player.pos.y = Math.min(devMode ? 16.0 : 11.0, player.pos.y);
   }
 
   // RockObstacle horizontal collision
@@ -1299,7 +1402,7 @@ function updatePlayerPhysics(dt) {
   }
 
   // Flood drown check
-  if (player.pos.y < weather.floodLevelY) {
+  if (!devMode && player.pos.y < weather.floodLevelY) {
     triggerGameOver('Bạn đã bị nước lũ Thiên Đình nhấn chìm!');
     return;
   }
@@ -1552,6 +1655,7 @@ function updateProjectiles(dt) {
 }
 
 function damagePlayer(hazardBullet) {
+  if (devMode) return;
   // Step 1: Perfect Morph (highest priority)
   if (player.perfectMorphWindow > 0) {
     triggerPerfectMorph(hazardBullet);
@@ -2068,6 +2172,96 @@ function animate() {
       player.mesh.visible = true;
       loadStage(5);
       gameState = GameState.PLAYING;
+    }
+    return;
+  }
+
+  if (gameState === GameState.VICTORY_SEQUENCE) {
+    victorySeqTimer -= dt;
+    const t = 1 - Math.max(0, victorySeqTimer / 3.2); // 0 -> 1
+
+    // Phase 1 (0..0.55): Boss shakes, flashes & explodes repeatedly before vanishing
+    if (boss) {
+      if (t < 0.55) {
+        boss.mesh.position.set(
+          boss.pos.x + (Math.random() - 0.5) * 0.45,
+          boss.pos.y - t * 1.4 + (Math.random() - 0.5) * 0.35,
+          0
+        );
+        boss.mesh.scale.setScalar(Math.max(0.2, 1 - t * 0.6));
+        const flashWhite = Math.floor(elapsed * 24) % 2 === 0;
+        for (const m of boss.mesh.userData.flashMaterials) {
+          m.emissive.setHex(flashWhite ? 0xffffff : 0xf97316);
+        }
+        victoryBoomTimer -= dt;
+        if (victoryBoomTimer <= 0) {
+          victoryBoomTimer = 0.16;
+          const bx = boss.pos.x + (Math.random() - 0.5) * 3.2;
+          const by = boss.pos.y + (Math.random() - 0.5) * 3.6;
+          const boomColors = [0xfacc15, 0xf97316, 0xef4444, 0xffffff];
+          spawn3DParticles(new THREE.Vector3(bx, by, 0.5), 18, boomColors[Math.floor(Math.random() * 4)], 8.5, 0.28, 0.65);
+          spawnShockwave(new THREE.Vector3(bx, by, 0.2));
+          triggerShake(0.28, 0.14);
+          WebAudioSynth.playHitEnemy();
+        }
+      } else {
+        // Final massive explosion
+        spawn3DParticles(boss.pos, 60, 0xfacc15, 12.0, 0.35, 1.2);
+        spawnShockwave(boss.pos);
+        triggerShake(0.55, 0.35);
+        WebAudioSynth.playBreakArmor();
+        stageGroup.remove(boss.mesh);
+        boss = null;
+      }
+    }
+
+    // Phase 2 (0..1): Gradually stop rain, clear storm blur/fog, brighten sky, raise rainbow
+    const clearT = Math.min(1, Math.max(0, (t - 0.15) / 0.85));
+    const activeDrops = Math.round(360 * (1 - clearT));
+    for (let i = 0; i < MAX_RAIN; i++) {
+      const drop = rainPool[i];
+      if (i < activeDrops) {
+        drop.visible = true;
+        drop.position.x += -7.5 * (1 - clearT * 0.6) * dt;
+        drop.position.y += -28.0 * dt;
+        if (drop.position.y < -6.5) {
+          drop.position.y = 11.5 + Math.random() * 2;
+          drop.position.x = camX + (Math.random() - 0.5) * 36;
+        }
+      } else {
+        drop.visible = false;
+      }
+    }
+
+    const curBlur = 1.6 * (1 - clearT);
+    const curVig = 0.42 * (1 - clearT);
+    stormOverlay.style.opacity = String(curVig.toFixed(2));
+    stormOverlay.style.backdropFilter = `blur(${curBlur.toFixed(2)}px)`;
+    ambientLight.intensity = 0.40 + clearT * 0.75;
+    scene.fog.density = 0.030 * (1 - clearT) + 0.005 * clearT;
+
+    // Lerp sky color from dark storm (0x050811) to bright blue (0x38bdf8)
+    skyColor.setHex(0x050811).lerp(new THREE.Color(0x38bdf8), clearT);
+    if (!stageBgTextures[5]) {
+      scene.background = skyColor;
+    }
+    scene.fog.color.copy(skyColor);
+
+    if (clearT > 0.35) {
+      rainbowGroup.visible = true;
+      const rT = (clearT - 0.35) / 0.65;
+      rainbowGroup.position.set(0, -6.0 + rT * 4.5, -7.0);
+    }
+
+    // Lower flood water smoothly
+    floodWaterMesh.position.y += (-13.0 - floodWaterMesh.position.y) * (1 - Math.exp(-2.5 * dt));
+
+    updateParticlesAndShockwaves(dt);
+    updateCameraJuice(dt);
+    renderer.render(scene, camera);
+
+    if (victorySeqTimer <= 0) {
+      finishVictory();
     }
     return;
   }
