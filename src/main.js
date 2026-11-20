@@ -827,31 +827,31 @@ function loadStage(idx) {
       slideDir: pIdx % 2 === 0 ? 1 : -1,
     };
 
-    // Level Devil Troll Platforms!
-    if (isDevil && pIdx > 0) {
-      if (idx === 5 && pf.topY > 0) {
-        // Boss arena side platforms collapse & respawn
-        pfObj.trollType = 'fall_respawn';
-      } else if (pf.topY > 0 && pIdx % 2 === 1) {
+    // Level Devil Troll Platforms (Stages 0-4 only; Boss Stage 5 stays fair)
+    if (isDevil && idx < 5 && pIdx > 0 && pf.topY > 0) {
+      if (pIdx % 2 === 1) {
         pfObj.trollType = 'fall';
-      } else if (pf.topY > 0 && pIdx % 2 === 0) {
+      } else {
         pfObj.trollType = 'slide';
+        pfObj.slideMaxDist = 2.6;
       }
     }
     platforms.push(pfObj);
   });
 
-  // Level Devil Pop-up Surprise Spikes!
+  // Level Devil Pop-up Surprise Spikes (Stages 0-4, spaced safely away from rocks/spikes/gates)
   if (isDevil && idx < 5) {
-    const step = idx === 4 ? 65 : 42;
+    const step = idx === 4 ? 65 : 52;
     for (let sx = 24; sx < weather.maxX - 18; sx += step) {
-      // Place popup spike on solid ground where a platform exists at y=0
-      const onGround = layout.platforms.some((p) => p.topY === 0 && sx > p.x1 + 3 && sx < p.x2 - 3);
-      if (onGround) {
-        const sMesh = createSpikeMesh(2.4);
+      const onGround = layout.platforms.some((p) => p.topY === 0 && sx > p.x1 + 4 && sx < p.x2 - 4);
+      const nearRock = (layout.rocks || []).some((r) => Math.abs(sx - r.x) < 5.5);
+      const nearSpike = (layout.spikes || []).some((s) => Math.abs(sx - s.x) < 5.5);
+      const nearGate = (layout.spikeGates || []).some((g) => Math.abs(sx - g.x) < 6.5);
+      if (onGround && !nearRock && !nearSpike && !nearGate) {
+        const sMesh = createSpikeMesh(2.0);
         sMesh.position.set(sx, -0.75, 0);
         stageGroup.add(sMesh);
-        const sObj = { pos: new THREE.Vector3(sx, -0.75, 0), w: 2.4, h: 0.6, mesh: sMesh };
+        const sObj = { pos: new THREE.Vector3(sx, -0.75, 0), w: 2.0, h: 0.6, mesh: sMesh };
         spikes.push(sObj);
         trollTraps.push({
           type: 'popupSpike',
@@ -864,11 +864,11 @@ function loadStage(idx) {
     }
     // Extra sneaky pop-up spike right before the cage!
     if (layout.cage) {
-      const cx = layout.cage.x - 4.2;
-      const sMesh = createSpikeMesh(2.0);
+      const cx = layout.cage.x - 4.5;
+      const sMesh = createSpikeMesh(1.8);
       sMesh.position.set(cx, -0.75, 0);
       stageGroup.add(sMesh);
-      const sObj = { pos: new THREE.Vector3(cx, -0.75, 0), w: 2.0, h: 0.6, mesh: sMesh };
+      const sObj = { pos: new THREE.Vector3(cx, -0.75, 0), w: 1.8, h: 0.6, mesh: sMesh };
       spikes.push(sObj);
       trollTraps.push({
         type: 'popupSpike',
@@ -1537,38 +1537,74 @@ function updateEnemies(dt) {
     const dx = player.pos.x - en.pos.x;
     const absDx = Math.abs(dx);
 
-    if (en.type === 'minion') {
-      if (absDx < 9.0) {
-        en.vel.x = Math.sign(dx || 1) * en.speed;
-      } else {
-        if (en.pos.x <= en.patrolMinX) en.vel.x = en.speed;
-        if (en.pos.x >= en.patrolMaxX) en.vel.x = -en.speed;
-      }
-      en.pos.x += en.vel.x * dt;
-      en.pos.x = Math.max(en.patrolMinX, Math.min(en.patrolMaxX, en.pos.x));
-    } else if (en.type === 'elite') {
-      if (en.chargeTimer > 0) {
-        en.chargeTimer -= dt;
+    if (en.type === 'minion' || en.type === 'elite') {
+      if (en.type === 'minion') {
+        if (absDx < 9.0) {
+          en.vel.x = Math.sign(dx || 1) * en.speed;
+        } else {
+          if (en.pos.x <= en.patrolMinX) en.vel.x = en.speed;
+          if (en.pos.x >= en.patrolMaxX) en.vel.x = -en.speed;
+        }
         en.pos.x += en.vel.x * dt;
-      } else if (en.telegraphTimer > 0) {
-        en.telegraphTimer -= dt;
-        for (const m of en.mesh.userData.flashMaterials) m.emissive.setHex(0xef4444);
-        if (en.telegraphTimer <= 0) {
-          for (const m of en.mesh.userData.flashMaterials) m.emissive.setHex(0x000000);
-          en.chargeTimer = 0.35;
-          en.vel.x = Math.sign(dx || 1) * 11.0;
-        }
       } else {
-        en.aiTimer += dt;
-        if (absDx > 5.0 && absDx < 9.0) {
-          en.pos.x += Math.sign(dx) * en.speed * dt;
-        }
-        if (en.aiTimer >= 2.4 && absDx < 10.0) {
-          en.aiTimer = 0;
-          en.telegraphTimer = 0.4;
+        if (en.chargeTimer > 0) {
+          en.chargeTimer -= dt;
+          en.pos.x += en.vel.x * dt;
+        } else if (en.telegraphTimer > 0) {
+          en.telegraphTimer -= dt;
+          for (const m of en.mesh.userData.flashMaterials) m.emissive.setHex(0xef4444);
+          if (en.telegraphTimer <= 0) {
+            for (const m of en.mesh.userData.flashMaterials) m.emissive.setHex(0x000000);
+            en.chargeTimer = 0.35;
+            en.vel.x = Math.sign(dx || 1) * 11.0;
+          }
+        } else {
+          en.aiTimer += dt;
+          if (absDx > 5.0 && absDx < 9.0) {
+            en.pos.x += Math.sign(dx) * en.speed * dt;
+          }
+          if (en.aiTimer >= 2.4 && absDx < 10.0) {
+            en.aiTimer = 0;
+            en.telegraphTimer = 0.4;
+          }
         }
       }
-      en.pos.x = Math.max(en.patrolMinX, Math.min(en.patrolMaxX, en.pos.x));
+
+      // Gravity & solid ground check so enemies never walk on mid-air when platforms fall/slide
+      const prevBot = en.pos.y - en.h * 0.5;
+      en.vel.y = Math.max(MAX_FALL_SPEED, (en.vel.y || 0) + GRAVITY * dt);
+      en.pos.y += en.vel.y * dt;
+      const newBot = en.pos.y - en.h * 0.5;
+
+      let groundedPf = null;
+      if (en.vel.y <= 0) {
+        for (const pf of platforms) {
+          if (en.pos.x >= pf.x1 && en.pos.x <= pf.x2 && prevBot >= pf.topY - 0.45 && newBot <= pf.topY + 0.05) {
+            en.pos.y = pf.topY + en.h * 0.5;
+            en.vel.y = 0;
+            groundedPf = pf;
+            break;
+          }
+        }
+      }
+
+      if (groundedPf) {
+        const minBound = Math.max(en.patrolMinX, groundedPf.x1 + en.w * 0.45);
+        const maxBound = Math.min(en.patrolMaxX, groundedPf.x2 - en.w * 0.45);
+        if (minBound <= maxBound) {
+          if (en.pos.x <= minBound) {
+            en.pos.x = minBound;
+            if (en.vel.x < 0) en.vel.x = Math.abs(en.vel.x);
+          } else if (en.pos.x >= maxBound) {
+            en.pos.x = maxBound;
+            if (en.vel.x > 0) en.vel.x = -Math.abs(en.vel.x);
+          }
+        }
+      } else if (en.pos.y < STAGE_WEATHER[stageIndex].floodLevelY - 1.0) {
+        stageGroup.remove(en.mesh);
+        enemies.splice(i, 1);
+        continue;
+      }
     } else if (en.type === 'darkcloud') {
       en.pos.x += en.vel.x * dt;
       if (en.pos.x <= en.patrolMinX) en.vel.x = en.speed;
@@ -2067,12 +2103,20 @@ function updateTrollTraps(dt) {
       if (pf.trollState === 'idle') {
         if (Math.abs(player.pos.x - pf.origCx) < (pf.x2 - pf.x1) * 0.5 + 2.0 && player.pos.y > pf.topY - 1.5) {
           pf.trollState = 'active';
-          pf.trollTimer = 4.2; // distance to slide
+          pf.trollTimer = pf.slideMaxDist ?? 2.6;
           WebAudioSynth.playJump();
         }
       } else if (pf.trollState === 'active') {
-        const step = Math.min(pf.trollTimer, 18.0 * dt);
+        const step = Math.min(pf.trollTimer, 16.0 * dt);
         const dx = step * pf.slideDir;
+        // Carry any ground enemy standing on this sliding platform
+        for (const en of enemies) {
+          if (en.type !== 'darkcloud' && en.pos.x >= pf.x1 && en.pos.x <= pf.x2 && Math.abs((en.pos.y - en.h * 0.5) - pf.topY) < 0.45) {
+            en.pos.x += dx;
+            en.patrolMinX += dx;
+            en.patrolMaxX += dx;
+          }
+        }
         pf.x1 += dx;
         pf.x2 += dx;
         pf.mesh.position.x += dx;
