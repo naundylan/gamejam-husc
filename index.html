@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IT Game Jam 2026 - Three.js Starter Engine</title>
+  <title>Cóc Kiện Trời: Triệu Hồi Long Thần — Three.js 2.5D</title>
   <style>
     @font-face {
       font-family: 'JamRetro';
@@ -14,9 +14,9 @@
     html, body {
       width: 100%; height: 100%;
       overflow: hidden;
-      background: #070913;
-      font-family: 'JamRetro', 'Segoe UI', Tahoma, sans-serif;
-      color: #ffffff;
+      background: #070b14;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      color: #f8fafc;
     }
 
     #gameCanvas {
@@ -25,7 +25,7 @@
       height: 100vh;
     }
 
-    /* UI Layer: pointer-events: none so mouse aiming on 3D Canvas is never blocked */
+    /* UI Layer: pointer-events: none so canvas clicks are never blocked */
     #uiLayer {
       position: fixed;
       inset: 0;
@@ -33,7 +33,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 20px 28px;
+      padding: 16px 24px;
       z-index: 10;
     }
 
@@ -41,680 +41,453 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 20px;
+      gap: 16px;
+      width: 100%;
     }
+    #hudContainer.hidden { display: none; }
 
     .hud-box {
-      background: rgba(12, 16, 32, 0.72);
+      background: rgba(12, 16, 32, 0.78);
       backdrop-filter: blur(8px);
-      border: 2px solid rgba(56, 189, 248, 0.5);
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
       border-radius: 10px;
-      padding: 12px 18px;
+      padding: 10px 14px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
 
-    .hud-label {
-      font-size: 12px;
-      letter-spacing: 1.5px;
-      color: #94a3b8;
-      margin-bottom: 6px;
-    }
+    .hud-left { min-width: 260px; display: flex; flex-direction: column; gap: 6px; }
+    .hud-center { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .hud-right { min-width: 220px; text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 
-    #hpBarTrack {
-      width: 220px;
-      height: 16px;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 4px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+    .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    #formBadge {
+      font-size: 13px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1.5px solid #22c55e;
+      color: #22c55e;
+      background: rgba(0, 0, 0, 0.35);
     }
+    #hpHearts { font-size: 15px; letter-spacing: 2px; }
 
-    #hpBarFill {
+    .bar-track {
       width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      height: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+    #hpBarFill {
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, #ef4444, #22c55e);
       transition: width 0.12s ease-out;
     }
+    #twistBarFill {
+      width: 100%; height: 100%;
+      background: #22c55e;
+      transition: width 0.06s linear;
+    }
+    #twistBarFill.low-spirit {
+      animation: pulseRed 0.35s infinite alternate;
+    }
+    @keyframes pulseRed {
+      from { opacity: 1; }
+      to { opacity: 0.35; }
+    }
+    #twistValueText { font-size: 11px; color: #cbd5e1; font-weight: 600; }
 
-    #scoreDisplay {
-      text-align: right;
+    #stageBanner {
+      font-family: 'JamRetro', 'Segoe UI', sans-serif;
+      font-size: 16px;
+      letter-spacing: 1.2px;
+      color: #facc15;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      padding: 6px 16px;
     }
 
+    .seals-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .seal-slot {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid #475569;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      opacity: 0.25;
+      transition: transform 0.25s, opacity 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+    .seal-slot.unlocked {
+      opacity: 1;
+      border-color: #facc15;
+      box-shadow: 0 0 12px rgba(250, 204, 21, 0.75);
+      transform: scale(1.1);
+    }
+
+    #bossHpContainer {
+      width: 380px;
+      padding: 8px 14px;
+      border-color: rgba(239, 68, 68, 0.65);
+    }
+    #bossHpContainer.hidden { display: none; }
+    #bossHpText { font-size: 12px; font-weight: 700; color: #fca5a5; margin-bottom: 4px; text-align: center; }
+    #bossHpFill { width: 100%; height: 100%; background: linear-gradient(90deg, #dc2626, #f97316); transition: width 0.1s; }
+    #bossArmorTrack { height: 6px; margin-top: 4px; }
+    #bossArmorFill { width: 100%; height: 100%; background: #38bdf8; transition: width 0.1s; }
+
     #scoreValue {
-      font-size: 28px;
+      font-family: 'JamRetro', 'Segoe UI', sans-serif;
+      font-size: 22px;
       color: #facc15;
       text-shadow: 0 2px 10px rgba(250, 204, 21, 0.4);
     }
-
-    #highScoreValue {
+    #comboBadge {
       font-size: 13px;
-      color: #94a3b8;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    #highScoreValue { font-size: 12px; color: #94a3b8; }
+    #muteBtn {
+      pointer-events: auto;
       margin-top: 4px;
+      background: rgba(30, 41, 59, 0.85);
+      color: #e2e8f0;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .bottom-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-bar {
+      display: flex;
+      gap: 6px;
+    }
+    .form-pill {
+      background: rgba(12, 16, 32, 0.82);
+      border: 1.5px solid rgba(148, 163, 184, 0.4);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e2e8f0;
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    .form-pill.locked { opacity: 0.28; filter: grayscale(1); }
+    .form-pill.active {
+      border-color: #facc15;
+      background: rgba(250, 204, 21, 0.2);
+      transform: translateY(-3px);
+      color: #facc15;
     }
 
     #controlsHint {
-      align-self: center;
-      background: rgba(12, 16, 32, 0.68);
+      background: rgba(12, 16, 32, 0.72);
       border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 8px 18px;
+      padding: 7px 18px;
       border-radius: 999px;
-      font-size: 13px;
+      font-size: 12.5px;
       color: #cbd5e1;
       text-shadow: 0 2px 4px #000;
     }
 
+    /* Overlays */
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(7, 9, 19, 0.82);
+      background: rgba(7, 11, 20, 0.84);
       backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
+      padding: 24px;
       z-index: 20;
       pointer-events: auto;
     }
-
     .overlay.hidden { display: none; }
 
     .overlay h1 {
-      font-size: 52px;
+      font-family: 'JamRetro', 'Segoe UI', sans-serif;
+      font-size: 42px;
       letter-spacing: 2px;
-      margin-bottom: 14px;
-      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #4ade80, #facc15, #38bdf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-
-    .overlay p {
-      font-size: 17px;
+    .overlay .subtitle {
+      font-size: 15px;
       color: #cbd5e1;
-      max-width: 560px;
-      line-height: 1.6;
-      margin-bottom: 26px;
+      max-width: 680px;
+      line-height: 1.5;
+      margin-bottom: 18px;
     }
+    .forms-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 220px));
+      gap: 10px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #cbd5e1;
+    }
+    .form-card strong { display: block; font-size: 13px; margin-bottom: 2px; }
 
     .btn-primary {
       pointer-events: auto;
-      padding: 14px 36px;
-      font-family: inherit;
-      font-size: 18px;
+      padding: 13px 34px;
+      font-family: 'JamRetro', 'Segoe UI', sans-serif;
+      font-size: 17px;
       font-weight: bold;
-      color: #070913;
-      background: #38bdf8;
+      color: #070b14;
+      background: linear-gradient(135deg, #4ade80, #38bdf8);
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       box-shadow: 0 0 24px rgba(56, 189, 248, 0.5);
-      transition: transform 0.12s, background 0.12s;
+      transition: transform 0.12s;
     }
-
-    .btn-primary:hover {
-      transform: scale(1.06);
-      background: #7dd3fc;
-    }
+    .btn-primary:hover { transform: scale(1.06); }
 
     #gameOverOverlay h1 {
-      background: linear-gradient(135deg, #fb7185, #f43f5e);
+      background: linear-gradient(135deg, #fb7185, #ef4444);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    #victoryOverlay h1 {
+      background: linear-gradient(135deg, #facc15, #4ade80, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stats-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(148, 163, 184, 0.25);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .stat-chip {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 5px;
+      padding: 2px 6px;
+      color: #cbd5e1;
+    }
+    .stat-chip.sp {
+      border-color: #facc15;
+      color: #facc15;
+      background: rgba(250, 204, 21, 0.15);
+    }
+
+    .upgrade-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 260px));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .upgrade-btn {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.92);
+      border: 2px solid rgba(56, 189, 248, 0.55);
+      border-radius: 10px;
+      padding: 12px 14px;
+      text-align: left;
+      color: #f8fafc;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.12s, background 0.12s;
+    }
+    .upgrade-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: #facc15;
+      background: rgba(30, 41, 59, 0.95);
+    }
+    .upgrade-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .upgrade-btn strong { display: block; font-size: 14px; color: #facc15; margin-bottom: 4px; }
+    .upgrade-btn span { font-size: 12px; color: #cbd5e1; }
   </style>
 </head>
 <body>
-
   <canvas id="gameCanvas"></canvas>
+  <div id="stormOverlay" style="position:fixed; inset:0; pointer-events:none; z-index:4; background:radial-gradient(circle, rgba(15,23,42,0.05) 35%, rgba(2,6,23,0.92) 100%); opacity:0; backdrop-filter:blur(0px); transition:opacity 0.6s ease, backdrop-filter 0.6s ease;"></div>
+  <div id="lightningFlashOverlay" style="position:fixed; inset:0; pointer-events:none; z-index:5; background:#e2e8f0; opacity:0;"></div>
 
   <!-- HUD OVERLAY -->
   <div id="uiLayer">
-    <div id="hudContainer">
-      <div class="hud-box">
-        <div class="hud-label" id="hpText">HP: 5 / 5</div>
-        <div id="hpBarTrack"><div id="hpBarFill"></div></div>
+    <div id="hudContainer" class="hidden">
+      <div class="hud-box hud-left">
+        <div class="top-row">
+          <span id="formBadge">DẠNG [1]: CÓC</span>
+          <span id="hpHearts">❤️❤️❤️</span>
+        </div>
+        <div class="bar-track"><div id="hpBarFill"></div></div>
+        <div class="bar-track"><div id="twistBarFill"></div></div>
+        <div id="twistValueText">LINH KHÍ: 100%</div>
+        <div class="stats-bar" id="statsBar">
+          <span class="stat-chip sp" id="statSp">SP: 0</span>
+          <span class="stat-chip" id="statAtk">ATK Lv.1</span>
+          <span class="stat-chip" id="statSpd">SPD Lv.1</span>
+          <span class="stat-chip" id="statHp">HP Lv.1</span>
+          <span class="stat-chip" id="statSpirit">LK Lv.1</span>
+        </div>
       </div>
 
-      <div class="hud-box" id="scoreDisplay">
+      <div class="hud-center">
+        <div class="hud-box" id="stageBanner">TUTORIAL: BỜ AO KHÔ HẠN</div>
+        <div id="weatherBadge" style="font-size:12px; font-weight:700; color:#7dd3fc; background:rgba(12,16,32,0.78); border:1px solid rgba(56,189,248,0.4); border-radius:999px; padding:3px 12px; text-shadow:0 1px 4px #000;">🌦️ MƯA PHÙN NHẸ — CẤP 1</div>
+        <div class="seals-row">
+          <div class="seal-slot" id="sealSlot1" title="Ấn Ký Hổ">🐯</div>
+          <div class="seal-slot" id="sealSlot2" title="Ấn Ký Gấu">🐻</div>
+          <div class="seal-slot" id="sealSlot3" title="Ấn Ký Cáo">🦊</div>
+          <div class="seal-slot" id="sealSlot4" title="Ấn Ký Ong">🐝</div>
+        </div>
+        <div class="hud-box hidden" id="bossHpContainer">
+          <div id="bossHpText">ÔNG TRỜI: 40.0/40 | GIÁP TRỐNG SẤM: 10.0</div>
+          <div class="bar-track"><div id="bossHpFill"></div></div>
+          <div class="bar-track" id="bossArmorTrack"><div id="bossArmorFill"></div></div>
+        </div>
+      </div>
+
+      <div class="hud-box hud-right">
         <div id="scoreValue">SCORE: 0</div>
+        <div id="comboBadge">x1</div>
         <div id="highScoreValue">BEST: 0</div>
+        <div style="display:flex; gap:6px; margin-top:4px;">
+          <button id="pauseBtn" style="pointer-events:auto; background:rgba(30,41,59,0.85); color:#e2e8f0; border:1px solid rgba(148,163,184,0.4); border-radius:6px; padding:3px 8px; font-size:11px; cursor:pointer;">⏸ Tạm dừng [P]</button>
+          <button id="muteBtn" style="margin-top:0;">🔊 Âm thanh [M]</button>
+        </div>
       </div>
     </div>
 
-    <div id="controlsHint">
-      [WASD] Di chuyển &nbsp;|&nbsp; [Chuột] Ngắm & Bắn &nbsp;|&nbsp; [SPACE] Lướt (Dash) &nbsp;|&nbsp; [R] Chơi lại nhanh
+    <div class="bottom-bar">
+      <div class="form-bar">
+        <div class="form-pill active" id="formSlot1">[1] 🐸 Cóc</div>
+        <div class="form-pill locked" id="formSlot2">[2] 🐯 Hổ</div>
+        <div class="form-pill locked" id="formSlot3">[3] 🐻 Gấu</div>
+        <div class="form-pill locked" id="formSlot4">[4] 🦊 Cáo</div>
+        <div class="form-pill locked" id="formSlot5">[5] 🐝 Ong</div>
+      </div>
+      <div id="controlsHint">
+        [A/D] Di chuyển &nbsp;|&nbsp; [W/SPACE] Nhảy / Bay (Ong) &nbsp;|&nbsp; [J / Click] Tấn công / Dash &nbsp;|&nbsp; [1-5 / Q / E / Lăn chuột] Biến hình &nbsp;|&nbsp; [P/ESC] Tạm dừng &nbsp;|&nbsp; [R] Chơi lại
+      </div>
     </div>
   </div>
 
-  <!-- START MENU -->
+  <!-- MENU OVERLAY -->
   <div id="menuOverlay" class="overlay">
-    <h1>THREE.JS JAM ENGINE</h1>
-    <p>Khung khởi đầu 60 FPS WebGL đã sẵn sàng.<br/>Dùng dây chuyền Prompt trong <code>prompt/</code> để biến hóa cơ chế Twist theo chủ đề BTC!</p>
-    <button class="btn-primary" id="startBtn">BẮT ĐẦU [SPACE]</button>
+    <h1>CÓC KIỆN TRỜI: TRIỆU HỒI LONG THẦN</h1>
+    <p class="subtitle">
+      Mưa bão & nước lũ đang dâng cao qua từng màn! Giải cứu 4 Linh Thú để cùng nhau triệu hồi Long Thần lên Điện Ngọc Hoàng.<br/>
+      <strong>CÚ TWIST:</strong> Biến hình ngay trước khi trúng đòn (<em>Perfect Morph 0.20s</em>) để phát Sóng Âm làm choáng địch, hồi Linh Khí & tăng Combo đến <strong>x10</strong>!
+    </p>
+    <div class="forms-grid">
+      <div class="form-card"><strong style="color:#22c55e">[1] Cóc</strong>Nhảy đơn cao, hồi Linh Khí nhanh (+22/s), bắn chớp choáng.</div>
+      <div class="form-card"><strong style="color:#f97316">[2] Hổ</strong>Vồ cắn sát thương cao (3.0), 2x phá Giáp Trống Sấm Boss.</div>
+      <div class="form-card"><strong style="color:#d97706">[3] Gấu</strong>Đập vỡ Tảng Đá cản đường, giảm 50% sát thương nhận vào.</div>
+      <div class="form-card"><strong style="color:#ef4444">[4] Cáo</strong>Dash [J] lướt xuyên khe cột đầy gai & né sét; nhận 2x sát thương nếu bị trúng.</div>
+      <div class="form-card"><strong style="color:#facc15">[5] Ong</strong>Giữ [W/SPACE] để bay, bắn nọc hạ Mây Đen; trúng 1 đòn văng về Cóc.</div>
+    </div>
+    <p id="menuBest" class="subtitle" style="margin-bottom: 16px; color: #facc15;"></p>
+    <button class="btn-primary" id="startBtn">BẮT ĐẦU HÀNH TRÌNH [SPACE]</button>
   </div>
 
-  <!-- GAME OVER -->
+  <!-- STAGE-CLEAR UPGRADE POPUP (TIME FREEZE) -->
+  <div id="upgradeOverlay" class="overlay hidden">
+    <h1>THĂNG CẤP LINH THÚ</h1>
+    <p class="subtitle" id="upgradeSubtitle">Giải cứu Linh Thú thành công! Thời gian đã ngưng đọng — hãy dùng Điểm Chỉ Số (SP) để cường hóa bản thân:</p>
+    <p class="subtitle" id="upgradeSpText" style="color:#facc15; font-size:20px; font-weight:800; margin-bottom:14px;">ĐIỂM KỸ NĂNG (SP): 0</p>
+    <div class="upgrade-grid">
+      <button class="upgrade-btn" id="upAtkBtn">
+        <strong id="upAtkTitle">⚔️ SỨC MẠNH (ATK Lv.1)</strong>
+        <span id="upAtkDesc">+10% Sát thương mọi hình dạng (Tốn 1 SP)</span>
+      </button>
+      <button class="upgrade-btn" id="upSpdBtn">
+        <strong id="upSpdTitle">⚡ TỐC ĐỘ (SPD Lv.1)</strong>
+        <span id="upSpdDesc">+6% Tốc độ di chuyển & lướt (Tốn 1 SP)</span>
+      </button>
+      <button class="upgrade-btn" id="upHpBtn">
+        <strong id="upHpTitle">❤️ SINH LỰC (HP Lv.1)</strong>
+        <span id="upHpDesc">+1 Tim tối đa & Hồi +1 Tim (Tốn 1 SP)</span>
+      </button>
+      <button class="upgrade-btn" id="upSpiritBtn">
+        <strong id="upSpiritTitle">🌀 LINH KHÍ (LK Lv.1)</strong>
+        <span id="upSpiritDesc">+10 Linh Khí tối đa & +10% Hồi phục (Tốn 1 SP)</span>
+      </button>
+    </div>
+    <button class="btn-primary" id="continueStageBtn">TIẾP TỤC MÀN MỚI [SPACE / ENTER]</button>
+  </div>
+
+  <!-- PAUSE OVERLAY -->
+  <div id="pauseOverlay" class="overlay hidden">
+    <h1>TẠM DỪNG</h1>
+    <p class="subtitle">Trận chiến đang tạm ngưng. Nhấn <strong>[P]</strong> hoặc <strong>[ESC]</strong> để tiếp tục.</p>
+    <div style="display:flex; gap:14px;">
+      <button class="btn-primary" id="resumeBtn">TIẾP TỤC [P / ESC]</button>
+      <button class="btn-primary" id="pauseRestartBtn" style="background:linear-gradient(135deg,#fb7185,#f97316);">CHƠI LẠI [R]</button>
+    </div>
+  </div>
+
+  <!-- DRAGON SUMMON DIALOGUE BOX -->
+  <div id="dragonDialogueOverlay" class="hidden" style="position:fixed; left:50%; bottom:34px; transform:translateX(-50%); width:min(760px, 92vw); z-index:25; pointer-events:none; background:rgba(7,11,20,0.92); border:2px solid #facc15; border-radius:14px; padding:16px 22px; box-shadow:0 0 32px rgba(250,204,21,0.45);">
+    <div id="dragonSpeaker" style="font-size:14px; font-weight:800; color:#facc15; margin-bottom:6px; letter-spacing:0.6px;">🐸 CÓC & ĐỒNG ĐỘI (HỔ • GẤU • CÁO • ONG):</div>
+    <div id="dragonDialogueText" style="font-size:15px; color:#f8fafc; line-height:1.5;">
+      "Xin Long Thần hãy đưa chúng con bay lên Điện Ngọc Hoàng, hỏi tội Ông Trời gây mưa bão lụt lội!"
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
   <div id="gameOverOverlay" class="overlay hidden">
-    <h1>GAME OVER</h1>
-    <p id="finalScoreText">Điểm của bạn: 0</p>
+    <h1>THẤT BẠI</h1>
+    <p class="subtitle" id="gameOverReason" style="color: #fca5a5; margin-bottom: 8px;"></p>
+    <p class="subtitle" id="finalScoreText"></p>
     <button class="btn-primary" id="restartBtn">CHƠI LẠI NGAY [R]</button>
   </div>
 
-  <script type="module">
-    import * as THREE from 'https://unpkg.com/three@0.170.0/build/three.module.js';
+  <!-- VICTORY OVERLAY -->
+  <div id="victoryOverlay" class="overlay hidden">
+    <h1>CHIẾN THẮNG! MƯA BÃO ĐÃ TẠNH</h1>
+    <p class="subtitle">Ông Trời đã khuất phục! Cầu Vồng 7 sắc rực rỡ, nước lũ rút xuống, muôn loài hân hoan!</p>
+    <p class="subtitle" id="victoryStats"></p>
+    <button class="btn-primary" id="victoryRestartBtn">CHƠI LẠI [R]</button>
+  </div>
 
-    // =========================================================
-    // 1. WEB AUDIO API PROCEDURAL SYNTH (ZERO EXTERNAL DEPENDENCY)
-    // =========================================================
-    const SoundSynth = (() => {
-      let ctx = null;
-      function ensureCtx() {
-        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if (ctx.state === 'suspended') ctx.resume();
-        return ctx;
-      }
-      return {
-        play(freqStart, freqEnd, type = 'square', duration = 0.08, vol = 0.12) {
-          try {
-            const c = ensureCtx();
-            const osc = c.createOscillator();
-            const gain = c.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freqStart, c.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), c.currentTime + duration);
-            gain.gain.setValueAtTime(vol, c.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(c.destination);
-            osc.start();
-            osc.stop(c.currentTime + duration);
-          } catch (_) {}
-        }
-      };
-    })();
-
-    // =========================================================
-    // 2. THREE.JS SCENE, RENDERER, CAMERA & LIGHTING SETUP
-    // =========================================================
-    const canvas = document.getElementById('gameCanvas');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x070913);
-    scene.fog = new THREE.FogExp2(0x070913, 0.022);
-
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 150);
-    const CAMERA_OFFSET = new THREE.Vector3(0, 20, 14);
-    camera.position.copy(CAMERA_OFFSET);
-    camera.lookAt(0, 0, 0);
-
-    const ambientLight = new THREE.AmbientLight(0x94a3b8, 0.7);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.3);
-    dirLight.position.set(12, 24, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.set(1024, 1024);
-    scene.add(dirLight);
-
-    const playerLight = new THREE.PointLight(0x38bdf8, 2.5, 16);
-    playerLight.position.set(0, 2, 0);
-    scene.add(playerLight);
-
-    // Arena Floor & Grid (XZ Plane, Y = 0)
-    const ARENA_HALF = 22;
-    const floorGeo = new THREE.PlaneGeometry(ARENA_HALF * 2, ARENA_HALF * 2);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.85, metalness: 0.1 });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
-    scene.add(floor);
-
-    const grid = new THREE.GridHelper(ARENA_HALF * 2, 22, 0x38bdf8, 0x1e293b);
-    grid.position.y = 0.02;
-    scene.add(grid);
-
-    // =========================================================
-    // 3. SHARED GEOMETRIES & MATERIALS (VRAM SAFE)
-    // =========================================================
-    const SHARED = {
-      bulletGeo: new THREE.SphereGeometry(0.24, 8, 8),
-      bulletMat: new THREE.MeshBasicMaterial({ color: 0xfacc15 }),
-      enemyGeo: new THREE.OctahedronGeometry(0.7, 0),
-      enemyMatBase: new THREE.MeshStandardMaterial({ color: 0xf43f5e, flatShading: true, roughness: 0.3 }),
-      particleGeo: new THREE.BoxGeometry(0.22, 0.22, 0.22),
-      particleMatPlayer: new THREE.MeshBasicMaterial({ color: 0x38bdf8 }),
-      particleMatEnemy: new THREE.MeshBasicMaterial({ color: 0xf43f5e })
-    };
-
-    // =========================================================
-    // 4. GAME STATE & ENTITIES
-    // =========================================================
-    const HIGH_SCORE_KEY = 'GAMEJAM_HUSC_2026_BEST';
-    const MAX_ENEMIES = 45;
-    const MAX_PARTICLES = 150;
-
-    let gameState = 'MENU'; // 'MENU' | 'PLAYING' | 'GAMEOVER'
-    let score = 0;
-    let highScore = Number(localStorage.getItem(HIGH_SCORE_KEY) || 0);
-    let elapsedTime = 0;
-    let spawnTimer = 0;
-    let hitStopTimer = 0;
-    let shakeTimer = 0;
-    let shakeIntensity = 0;
-
-    // Reusable temporary vectors (Zero GC in loop)
-    const _tempVec3 = new THREE.Vector3();
-    const _camTarget = new THREE.Vector3();
-    const _raycaster = new THREE.Raycaster();
-    const _mouseNDC = new THREE.Vector2();
-    const _groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-    const _aimPoint = new THREE.Vector3();
-
-    // Create Player Group
-    function createPlayerMesh() {
-      const g = new THREE.Group();
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(1.1, 1.2, 1.1),
-        new THREE.MeshStandardMaterial({ color: 0x38bdf8, flatShading: true, roughness: 0.3 })
-      );
-      body.position.y = 0.6;
-      body.castShadow = true;
-
-      const visor = new THREE.Mesh(
-        new THREE.BoxGeometry(0.75, 0.28, 0.3),
-        new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x7dd3fc, emissiveIntensity: 1.5 })
-      );
-      visor.position.set(0, 0.85, 0.5);
-
-      const barrel = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.14, 0.14, 0.9, 8),
-        new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xfacc15, emissiveIntensity: 0.6 })
-      );
-      barrel.rotation.x = Math.PI / 2;
-      barrel.position.set(0.45, 0.6, 0.6);
-
-      g.add(body, visor, barrel);
-      return g;
-    }
-
-    const player = {
-      mesh: createPlayerMesh(),
-      radius: 0.75,
-      speed: 9.5,
-      hp: 5,
-      maxHp: 5,
-      iFrameTimer: 0,
-      fireCooldown: 0,
-      fireRate: 0.16,
-      dashTimer: 0,
-      dashCooldown: 0,
-      dashDir: new THREE.Vector3()
-    };
-    scene.add(player.mesh);
-
-    const bullets = [];
-    const enemies = [];
-    const particles = [];
-
-    // =========================================================
-    // 5. INPUT & RAYCASTING
-    // =========================================================
-    const keys = {};
-    let mouseDown = false;
-
-    window.addEventListener('keydown', (e) => {
-      const k = e.key.toLowerCase();
-      keys[k] = true;
-      if (k === ' ' && gameState === 'MENU') startGame();
-      if (k === 'r' && gameState === 'GAMEOVER') resetGame();
-      if (k === ' ' && gameState === 'PLAYING' && player.dashCooldown <= 0) triggerDash();
-    });
-    window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
-
-    window.addEventListener('mousemove', (e) => {
-      _mouseNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
-      _mouseNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
-    });
-    window.addEventListener('mousedown', () => { mouseDown = true; });
-    window.addEventListener('mouseup', () => { mouseDown = false; });
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // =========================================================
-    // 6. JUICE, SPAWNING & HUD HELPERS
-    // =========================================================
-    const hpTextEl = document.getElementById('hpText');
-    const hpBarFillEl = document.getElementById('hpBarFill');
-    const scoreValueEl = document.getElementById('scoreValue');
-    const highScoreValueEl = document.getElementById('highScoreValue');
-    const menuOverlay = document.getElementById('menuOverlay');
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    const finalScoreText = document.getElementById('finalScoreText');
-
-    function updateHUD() {
-      hpTextEl.innerText = `HP: ${player.hp} / ${player.maxHp}`;
-      hpBarFillEl.style.width = `${(player.hp / player.maxHp) * 100}%`;
-      scoreValueEl.innerText = `SCORE: ${score}`;
-      highScoreValueEl.innerText = `BEST: ${highScore}`;
-    }
-
-    function triggerShake(intensity = 0.35, duration = 0.14) {
-      shakeIntensity = Math.max(shakeIntensity, intensity);
-      shakeTimer = Math.max(shakeTimer, duration);
-    }
-
-    function spawnParticles(pos, mat, count = 12) {
-      for (let i = 0; i < count; i++) {
-        if (particles.length >= MAX_PARTICLES) {
-          const old = particles.shift();
-          scene.remove(old.mesh);
-        }
-        const m = new THREE.Mesh(SHARED.particleGeo, mat);
-        m.position.copy(pos);
-        m.position.y = 0.6;
-        scene.add(m);
-        const angle = Math.random() * Math.PI * 2;
-        const spd = 4 + Math.random() * 8;
-        particles.push({
-          mesh: m,
-          vx: Math.cos(angle) * spd,
-          vy: 3 + Math.random() * 6,
-          vz: Math.sin(angle) * spd,
-          life: 0.45 + Math.random() * 0.25
-        });
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.170.0/build/three.module.js"
       }
     }
-
-    function triggerDash() {
-      let dx = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
-      let dz = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
-      if (dx === 0 && dz === 0) {
-        player.dashDir.set(Math.sin(player.mesh.rotation.y), 0, Math.cos(player.mesh.rotation.y));
-      } else {
-        player.dashDir.set(dx, 0, dz).normalize();
-      }
-      player.dashTimer = 0.14;
-      player.dashCooldown = 0.75;
-      player.iFrameTimer = Math.max(player.iFrameTimer, 0.18);
-      SoundSynth.play(320, 780, 'triangle', 0.1, 0.15);
-      spawnParticles(player.mesh.position, SHARED.particleMatPlayer, 8);
-    }
-
-    function shootBullet() {
-      player.fireCooldown = player.fireRate;
-      const angle = player.mesh.rotation.y;
-      const dirX = Math.sin(angle);
-      const dirZ = Math.cos(angle);
-
-      const m = new THREE.Mesh(SHARED.bulletGeo, SHARED.bulletMat);
-      m.position.set(player.mesh.position.x + dirX * 0.9, 0.6, player.mesh.position.z + dirZ * 0.9);
-      scene.add(m);
-
-      bullets.push({
-        mesh: m,
-        vx: dirX * 26,
-        vz: dirZ * 26,
-        radius: 0.3,
-        ttl: 1.4
-      });
-
-      SoundSynth.play(680, 220, 'square', 0.06, 0.09);
-      triggerShake(0.08, 0.05);
-    }
-
-    function spawnEnemy() {
-      if (enemies.length >= MAX_ENEMIES) return;
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 18 + Math.random() * 6;
-      const mat = SHARED.enemyMatBase.clone(); // Clone material for independent hit-flash
-      const m = new THREE.Mesh(SHARED.enemyGeo, mat);
-      m.position.set(
-        THREE.MathUtils.clamp(player.mesh.position.x + Math.cos(angle) * dist, -ARENA_HALF, ARENA_HALF),
-        0.75,
-        THREE.MathUtils.clamp(player.mesh.position.z + Math.sin(angle) * dist, -ARENA_HALF, ARENA_HALF)
-      );
-      m.castShadow = true;
-      scene.add(m);
-
-      enemies.push({
-        mesh: m,
-        mat,
-        radius: 0.7,
-        hp: 2,
-        speed: 3.5 + Math.min(3.5, elapsedTime * 0.04),
-        flashTimer: 0
-      });
-    }
-
-    // =========================================================
-    // 7. STATE TRANSITIONS (MENU -> PLAYING -> GAMEOVER -> RESET)
-    // =========================================================
-    function clearAllDynamicMeshes() {
-      while (bullets.length) scene.remove(bullets.pop().mesh);
-      while (enemies.length) {
-        const e = enemies.pop();
-        e.mat.dispose();
-        scene.remove(e.mesh);
-      }
-      while (particles.length) scene.remove(particles.pop().mesh);
-    }
-
-    function resetGame() {
-      clearAllDynamicMeshes();
-      player.mesh.position.set(0, 0, 0);
-      player.mesh.scale.set(1, 1, 1);
-      player.mesh.visible = true;
-      player.hp = player.maxHp;
-      player.iFrameTimer = 0;
-      player.dashTimer = 0;
-      player.dashCooldown = 0;
-      score = 0;
-      elapsedTime = 0;
-      spawnTimer = 0.5;
-      hitStopTimer = 0;
-      shakeTimer = 0;
-
-      gameState = 'PLAYING';
-      menuOverlay.classList.add('hidden');
-      gameOverOverlay.classList.add('hidden');
-      updateHUD();
-    }
-
-    function startGame() {
-      resetGame();
-    }
-
-    function triggerGameOver() {
-      gameState = 'GAMEOVER';
-      if (score > highScore) {
-        highScore = score;
-        localStorage.setItem(HIGH_SCORE_KEY, String(highScore));
-      }
-      updateHUD();
-      finalScoreText.innerText = `Điểm đạt được: ${score}  |  Kỷ lục: ${highScore}`;
-      gameOverOverlay.classList.remove('hidden');
-      SoundSynth.play(180, 40, 'sawtooth', 0.4, 0.2);
-    }
-
-    document.getElementById('startBtn').addEventListener('click', startGame);
-    document.getElementById('restartBtn').addEventListener('click', resetGame);
-    updateHUD();
-
-    // =========================================================
-    // 8. MAIN 60FPS GAME LOOP
-    // =========================================================
-    const clock = new THREE.Clock();
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const dt = Math.min(clock.getDelta(), 0.05);
-
-      if (hitStopTimer > 0) {
-        hitStopTimer -= dt;
-        renderer.render(scene, camera);
-        return;
-      }
-
-      if (gameState === 'PLAYING') {
-        elapsedTime += dt;
-
-        // Player Movement (XZ Plane)
-        if (player.dashTimer > 0) {
-          player.dashTimer -= dt;
-          player.mesh.position.addScaledVector(player.dashDir, 24 * dt);
-        } else {
-          const dx = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
-          const dz = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
-          if (dx !== 0 || dz !== 0) {
-            _tempVec3.set(dx, 0, dz).normalize();
-            player.mesh.position.addScaledVector(_tempVec3, player.speed * dt);
-          }
-        }
-        player.mesh.position.x = THREE.MathUtils.clamp(player.mesh.position.x, -ARENA_HALF + 0.8, ARENA_HALF - 0.8);
-        player.mesh.position.z = THREE.MathUtils.clamp(player.mesh.position.z, -ARENA_HALF + 0.8, ARENA_HALF - 0.8);
-        playerLight.position.set(player.mesh.position.x, 2.5, player.mesh.position.z);
-
-        // Mouse Aim via Raycaster
-        _raycaster.setFromCamera(_mouseNDC, camera);
-        if (_raycaster.ray.intersectPlane(_groundPlane, _aimPoint)) {
-          player.mesh.rotation.y = Math.atan2(_aimPoint.x - player.mesh.position.x, _aimPoint.z - player.mesh.position.z);
-        }
-
-        // Cooldowns & Shooting
-        if (player.dashCooldown > 0) player.dashCooldown -= dt;
-        if (player.iFrameTimer > 0) {
-          player.iFrameTimer -= dt;
-          player.mesh.visible = Math.floor(player.iFrameTimer * 20) % 2 === 0;
-        } else {
-          player.mesh.visible = true;
-        }
-        if (player.fireCooldown > 0) player.fireCooldown -= dt;
-        if (mouseDown && player.fireCooldown <= 0) shootBullet();
-
-        // Spawner
-        spawnTimer -= dt;
-        if (spawnTimer <= 0) {
-          spawnEnemy();
-          spawnTimer = Math.max(0.35, 1.4 - elapsedTime * 0.015);
-        }
-
-        // Update Bullets
-        for (let i = bullets.length - 1; i >= 0; i--) {
-          const b = bullets[i];
-          b.mesh.position.x += b.vx * dt;
-          b.mesh.position.z += b.vz * dt;
-          b.ttl -= dt;
-          if (b.ttl <= 0 || Math.abs(b.mesh.position.x) > ARENA_HALF + 2 || Math.abs(b.mesh.position.z) > ARENA_HALF + 2) {
-            scene.remove(b.mesh);
-            bullets.splice(i, 1);
-          }
-        }
-
-        // Update Enemies & Collisions
-        for (let i = enemies.length - 1; i >= 0; i--) {
-          const e = enemies[i];
-          const toPlayerX = player.mesh.position.x - e.mesh.position.x;
-          const toPlayerZ = player.mesh.position.z - e.mesh.position.z;
-          const dist = Math.hypot(toPlayerX, toPlayerZ);
-
-          if (dist > 0.001) {
-            e.mesh.position.x += (toPlayerX / dist) * e.speed * dt;
-            e.mesh.position.z += (toPlayerZ / dist) * e.speed * dt;
-          }
-          e.mesh.rotation.y += 3 * dt;
-
-          if (e.flashTimer > 0) {
-            e.flashTimer -= dt;
-            if (e.flashTimer <= 0) e.mat.emissive.setHex(0x000000);
-          }
-
-          // Bullet vs Enemy
-          let killed = false;
-          for (let j = bullets.length - 1; j >= 0; j--) {
-            const b = bullets[j];
-            if (Math.hypot(e.mesh.position.x - b.mesh.position.x, e.mesh.position.z - b.mesh.position.z) < e.radius + b.radius) {
-              e.hp -= 1;
-              e.flashTimer = 0.07;
-              e.mat.emissive.setHex(0xffffff);
-              scene.remove(b.mesh);
-              bullets.splice(j, 1);
-
-              if (e.hp <= 0) {
-                spawnParticles(e.mesh.position, SHARED.particleMatEnemy, 14);
-                SoundSynth.play(160, 45, 'sawtooth', 0.14, 0.14);
-                triggerShake(0.25, 0.1);
-                hitStopTimer = 0.025;
-                e.mat.dispose();
-                scene.remove(e.mesh);
-                enemies.splice(i, 1);
-                score += 10;
-                updateHUD();
-                killed = true;
-                break;
-              } else {
-                SoundSynth.play(300, 150, 'triangle', 0.05, 0.08);
-              }
-            }
-          }
-          if (killed) continue;
-
-          // Enemy vs Player
-          if (dist < e.radius + player.radius && player.iFrameTimer <= 0) {
-            player.hp -= 1;
-            player.iFrameTimer = 1.0;
-            spawnParticles(player.mesh.position, SHARED.particleMatPlayer, 16);
-            SoundSynth.play(110, 40, 'sawtooth', 0.2, 0.18);
-            triggerShake(0.55, 0.25);
-            hitStopTimer = 0.08;
-            updateHUD();
-            if (player.hp <= 0) {
-              triggerGameOver();
-            }
-          }
-        }
-      } else if (gameState === 'MENU') {
-        player.mesh.rotation.y += 0.6 * dt;
-      }
-
-      // Update Particles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.mesh.position.x += p.vx * dt;
-        p.mesh.position.y += p.vy * dt;
-        p.mesh.position.z += p.vz * dt;
-        p.vy -= 22 * dt;
-        if (p.mesh.position.y < 0.1) { p.mesh.position.y = 0.1; p.vy *= -0.4; }
-        p.life -= dt;
-        const s = Math.max(0.01, p.life * 2);
-        p.mesh.scale.set(s, s, s);
-        if (p.life <= 0) {
-          scene.remove(p.mesh);
-          particles.splice(i, 1);
-        }
-      }
-
-      // Camera Follow + 3D Shake
-      _camTarget.copy(player.mesh.position).add(CAMERA_OFFSET);
-      camera.position.lerp(_camTarget, 1 - Math.exp(-8 * dt));
-      if (shakeTimer > 0) {
-        shakeTimer -= dt;
-        camera.position.x += (Math.random() - 0.5) * shakeIntensity;
-        camera.position.y += (Math.random() - 0.5) * shakeIntensity;
-      }
-      camera.lookAt(player.mesh.position.x, 0, player.mesh.position.z);
-
-      renderer.render(scene, camera);
-    }
-
-    animate();
   </script>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
